@@ -14,7 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.wander.databinding.FragmentHomeBinding;
-import com.mapbox.maps.MapView;
+//import com.mapbox.maps.MapView;
 
 public class HomeFragment extends Fragment {
 
