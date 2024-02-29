@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -30,28 +31,14 @@
         app:layout_constraintTop_toTopOf="parent"
         app:navGraph="@navigation/mobile_navigation" />
 
-<!--    Camera button -->
-<!--    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
-<!--        xmlns:tools="http://schemas.android.com/tools"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        tools:context=".MainActivity">-->
 
-<!--        &lt;!&ndash; add Camera Button to open the Camera &ndash;&gt;-->
-<!--        <Button-->
-<!--            android:id="@+id/camera_button"-->
-<!--            android:layout_width="100dp"-->
-<!--            android:layout_height="50dp"-->
-<!--            android:layout_marginStart="150dp"-->
-<!--            android:text="Camera" />-->
+    <Button
+        android:id="@+id/picture_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Take a picture"
+        tools:layout_editor_absoluteX="127dp"
+        tools:layout_editor_absoluteY="56dp" />
 
-<!--        &lt;!&ndash; add ImageView to display the captured image &ndash;&gt;-->
-<!--        <ImageView-->
-<!--            android:id="@+id/click_image"-->
-<!--            android:layout_width="350dp"-->
-<!--            android:layout_height="450dp"-->
-<!--            android:layout_marginStart="30dp"-->
-<!--            android:layout_marginTop="70dp"-->
-<!--            android:layout_marginBottom="10dp" />-->
-<!--    </RelativeLayout>-->
+
 </androidx.constraintlayout.widget.ConstraintLayout>
