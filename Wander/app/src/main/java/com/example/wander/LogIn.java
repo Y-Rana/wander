@@ -22,7 +22,6 @@ public class LogIn extends AppCompatActivity {
     private TextView signupRedirectText;
     private Button loginButton;
     private FirebaseAuth auth;
-    TextView forgotPassword;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

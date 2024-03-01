@@ -22,13 +22,13 @@
             android:name=".CameraActivity"
             android:exported="false" />
         <activity
+            android:name=".SignUp"
+            android:exported="false" />
+        <activity
             android:name=".LogIn"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:exported="true" />
-        <activity
-            android:name=".SignUp"
             android:exported="true"
             android:label="@string/app_name">
             <intent-filter>
