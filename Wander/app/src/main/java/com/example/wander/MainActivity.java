@@ -25,8 +25,11 @@ import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.wander.databinding.ActivityMainBinding;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
     private Button pictureButton;
+    private FirebaseAuth auth;
+    private ImageView profileIcon;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +50,9 @@ public class MainActivity extends AppCompatActivity {
         //connecting to the database
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+        auth = FirebaseAuth.getInstance();
+
+        profileIcon = findViewById(R.id.profile_icon);
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -63,16 +71,26 @@ public class MainActivity extends AppCompatActivity {
                 openCameraActivity();
             }
         });
+        if (this.auth.getCurrentUser() == null) {
+            Intent login_page = new Intent(this, LogIn.class);
+            startActivity(login_page);
+        }
 
-        //Intent login_page = new Intent(this, LogIn.class);
-        //startActivity(login_page);
+        profileIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, Profile.class));
+            }
+        });
     }
+
+
+
 
     public void openCameraActivity() {
         Intent intent = new Intent(this, CameraActivity.class);
         startActivity(intent);
     }
-
 
 }
 

@@ -22,6 +22,7 @@ public class LogIn extends AppCompatActivity {
     private TextView signupRedirectText;
     private Button loginButton;
     private FirebaseAuth auth;
+    private MainActivity dashboard;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +44,7 @@ public class LogIn extends AppCompatActivity {
                                     @Override
                                     public void onSuccess(AuthResult authResult) {
                                         Toast.makeText(LogIn.this, "Login Successful", Toast.LENGTH_SHORT).show();
+
                                         //startActivity(new Intent(LogIn.this, MainActivity.class));
                                         finish();
                                     }
