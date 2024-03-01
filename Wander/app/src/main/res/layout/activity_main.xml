@@ -36,9 +36,11 @@
         android:id="@+id/picture_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="124dp"
+        android:layout_marginTop="156dp"
         android:text="Take a picture"
-        tools:layout_editor_absoluteX="127dp"
-        tools:layout_editor_absoluteY="56dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/nav_host_fragment_activity_main" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
