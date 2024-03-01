@@ -10,8 +10,8 @@
         android:id="@+id/profile_icon"
         android:layout_width="175dp"
         android:layout_height="159dp"
-        android:layout_marginStart="120dp"
-        android:layout_marginTop="88dp"
+        android:layout_marginStart="116dp"
+        android:layout_marginTop="84dp"
         android:src="@drawable/profile_icon"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -93,19 +93,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/dashboardRedirect"
-        android:layout_width="wrap_content"
-        android:layout_height="51dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="120dp"
-        android:layout_marginBottom="16dp"
-        android:padding="8dp"
-        android:text="Back to Dashboard"
-        android:textColor="@color/wander_dark_grey"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
+    <ImageView
+        android:id="@+id/arrow_to_dash"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="36dp"
+        android:src="@drawable/arrowleft"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

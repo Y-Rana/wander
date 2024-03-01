@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,7 +21,8 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 
 public class Profile extends AppCompatActivity {
     private EditText newUname;
-    private TextView resetPass, uName, dashboardRedirectText;
+    private TextView resetPass, uName;
+    private ImageView dashboardRedirectButton;
     private Button applyButton, logoutButton;
     private FirebaseAuth auth;
     private FirebaseUser user;
@@ -32,7 +34,7 @@ public class Profile extends AppCompatActivity {
         uName = findViewById(R.id.userName);
         newUname = findViewById(R.id.newUname);
         resetPass = findViewById(R.id.changePass);
-        dashboardRedirectText = findViewById(R.id.dashboardRedirect);
+        dashboardRedirectButton = findViewById(R.id.arrow_to_dash);
         applyButton = findViewById(R.id.apply_button);
         logoutButton = findViewById(R.id.logout_button);
 
@@ -88,9 +90,12 @@ public class Profile extends AppCompatActivity {
             }
         });
 
-        dashboardRedirectText.setOnClickListener(new View.OnClickListener() {
+        dashboardRedirectButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) { startActivity(new Intent(Profile.this, MainActivity.class)); }
+            public void onClick(View v) {
+                startActivity(new Intent(Profile.this, MainActivity.class));
+                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+            }
         });
     }
 }
