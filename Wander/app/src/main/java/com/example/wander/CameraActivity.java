@@ -8,10 +8,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
+
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.Manifest;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.wander.databinding.ActivityCameraBinding;
@@ -25,6 +29,7 @@ public class CameraActivity extends AppCompatActivity {
     ActivityCameraBinding cameraBinding;
     ActivityResultLauncher<Uri> takePictureLauncher;
     Uri imageUri;
+    private TextView dashboardRedirectText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,8 +40,17 @@ public class CameraActivity extends AppCompatActivity {
         imageUri = createURI();
         setTakePictureLauncher();
 
+        dashboardRedirectText = findViewById(R.id.dashboardRedirect);
+
         cameraBinding.cameraButton.setOnClickListener(view -> {
             CameraPermission();
+        });
+
+        dashboardRedirectText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(CameraActivity.this, MainActivity.class));
+            }
         });
     }
 

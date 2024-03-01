@@ -64,8 +64,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Intent login_page = new Intent(this, LogIn.class);
-        startActivity(login_page);
+        //Intent login_page = new Intent(this, LogIn.class);
+        //startActivity(login_page);
     }
 
     public void openCameraActivity() {
