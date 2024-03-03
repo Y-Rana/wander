@@ -34,15 +34,15 @@
         app:layout_constraintVertical_bias="0.493"
         app:navGraph="@navigation/mobile_navigation" />
 
-    <Button
-        android:id="@+id/picture_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="124dp"
-        android:layout_marginTop="156dp"
-        android:text="Take a picture"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/nav_host_fragment_activity_main" />
+<!--    <Button-->
+<!--        android:id="@+id/picture_button"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="124dp"-->
+<!--        android:layout_marginTop="156dp"-->
+<!--        android:text="Take a picture"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="@+id/nav_host_fragment_activity_main" />-->
 
     <ImageView
         android:id="@+id/profile_icon"
