@@ -13,6 +13,7 @@ import android.widget.RelativeLayout;
 
 import com.bumptech.glide.Glide;
 import com.example.wander.databinding.FragmentGuessBinding;
+import com.mapbox.maps.MapView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -69,6 +70,27 @@ public class GuessFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_guess, container, false);
         ImageView imageView = (ImageView) view.findViewById(R.id.post_picture);
+        RelativeLayout mapLayout = (RelativeLayout) view.findViewById(R.id.map_layout);
+        MapView mapView = (MapView) view.findViewById(R.id.mapView);
+        RelativeLayout layout = (RelativeLayout) view.findViewById(R.id.guess_layout);
+
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ViewGroup.LayoutParams swap = imageView.getLayoutParams();
+                imageView.setLayoutParams(mapLayout.getLayoutParams());
+
+                mapLayout.setLayoutParams(swap);
+                mapView.setLayoutParams(swap);
+
+                layout.removeView(mapLayout);
+                layout.removeView(imageView);
+
+                layout.addView(mapLayout);
+                layout.addView(imageView);
+
+            }
+        });
 
         Glide.with(this).load("https://cms.globema.pl/glbmedia/9-2016-08-23-11112312124124124124.jpg").into(imageView);
 
