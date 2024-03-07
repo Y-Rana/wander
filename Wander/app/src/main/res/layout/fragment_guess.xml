@@ -35,7 +35,6 @@
 
             <ImageView
                 android:id="@+id/drop_pin"
-                android:layout_centerInParent="true"
                 android:layout_height="20dp"
                 android:layout_width="20dp"
                 android:src="@drawable/drop_pin"/>

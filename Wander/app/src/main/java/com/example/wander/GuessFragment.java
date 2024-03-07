@@ -1,11 +1,14 @@
 package com.example.wander;
 
+import android.gesture.Gesture;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -13,7 +16,14 @@ import android.widget.RelativeLayout;
 
 import com.bumptech.glide.Glide;
 import com.example.wander.databinding.FragmentGuessBinding;
+import com.google.type.LatLng;
+import com.mapbox.geojson.Point;
 import com.mapbox.maps.MapView;
+import com.mapbox.maps.MapboxMap;
+import com.mapbox.maps.plugin.gestures.GesturesPlugin;
+import com.mapbox.maps.plugin.gestures.GesturesUtils;
+import com.mapbox.maps.plugin.gestures.OnMapClickListener;
+import com.mapbox.maps.viewannotation.ViewAnnotationManager;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -25,6 +35,9 @@ public class GuessFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String IMAGE_PATH = null;
+
+    private ViewAnnotationManager vam;
+    private ImageView dropPin;
 
     private FragmentGuessBinding binding;
 
@@ -73,6 +86,7 @@ public class GuessFragment extends Fragment {
         RelativeLayout mapLayout = (RelativeLayout) view.findViewById(R.id.map_layout);
         MapView mapView = (MapView) view.findViewById(R.id.mapView);
         RelativeLayout layout = (RelativeLayout) view.findViewById(R.id.guess_layout);
+        dropPin = (ImageView) view.findViewById(R.id.drop_pin);
 
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,8 +106,32 @@ public class GuessFragment extends Fragment {
             }
         });
 
+        vam = mapView.getViewAnnotationManager();
+
+        GesturesPlugin gesturesPlugin = GesturesUtils.getGestures(mapView);
+        MapboxMap mapboxMap = mapView.getMapboxMap();
+        gesturesPlugin.addOnMapClickListener(new OnMapClickListener() {
+            final int PIN_SIZE = 20;
+            float factor = view.getContext().getResources().getDisplayMetrics().density;
+            @Override
+            public boolean onMapClick(@NonNull Point point) {
+                int x = (int) mapboxMap.pixelForCoordinate(point).getX();
+                int y = (int) mapboxMap.pixelForCoordinate(point).getY();
+                Log.d("MapLayout", point.toString());
+                mapLayout.removeView(dropPin);
+                RelativeLayout.LayoutParams layout = new RelativeLayout.LayoutParams((int) (PIN_SIZE * factor), (int) (PIN_SIZE * factor));
+                layout.setMargins(x, y, -1, -1);
+
+                dropPin.setLayoutParams(layout);
+                mapLayout.addView(dropPin);
+                return true;
+            }
+        });
+
         Glide.with(this).load("https://cms.globema.pl/glbmedia/9-2016-08-23-11112312124124124124.jpg").into(imageView);
 
         return view;
     }
+
+
 }
