@@ -106,27 +106,12 @@ public class GuessFragment extends Fragment {
             }
         });
 
-        vam = mapView.getViewAnnotationManager();
-
         GesturesPlugin gesturesPlugin = GesturesUtils.getGestures(mapView);
         MapboxMap mapboxMap = mapView.getMapboxMap();
-        gesturesPlugin.addOnMapClickListener(new OnMapClickListener() {
-            final int PIN_SIZE = 20;
-            float factor = view.getContext().getResources().getDisplayMetrics().density;
-            @Override
-            public boolean onMapClick(@NonNull Point point) {
-                int x = (int) mapboxMap.pixelForCoordinate(point).getX();
-                int y = (int) mapboxMap.pixelForCoordinate(point).getY();
-                Log.d("MapLayout", point.toString());
-                mapLayout.removeView(dropPin);
-                RelativeLayout.LayoutParams layout = new RelativeLayout.LayoutParams((int) (PIN_SIZE * factor), (int) (PIN_SIZE * factor));
-                layout.setMargins(x, y, -1, -1);
 
-                dropPin.setLayoutParams(layout);
-                mapLayout.addView(dropPin);
-                return true;
-            }
-        });
+        float factor = view.getContext().getResources().getDisplayMetrics().density;
+
+        gesturesPlugin.addOnMapClickListener(new MapClickListener(mapLayout, dropPin, mapboxMap, factor));
 
         Glide.with(this).load("https://cms.globema.pl/glbmedia/9-2016-08-23-11112312124124124124.jpg").into(imageView);
 
@@ -134,4 +119,35 @@ public class GuessFragment extends Fragment {
     }
 
 
+}
+
+class MapClickListener implements OnMapClickListener {
+    private final RelativeLayout mapLayout;
+    private final ImageView dropPin;
+
+    private final MapboxMap mapboxMap;
+
+    private final int PIN_SIZE = 20;
+    private final float factor;
+
+    public MapClickListener(RelativeLayout mapLayout, ImageView dropPin, MapboxMap mapboxMap, float factor) {
+        this.mapLayout = mapLayout;
+        this.dropPin = dropPin;
+        this.factor = factor;
+        this.mapboxMap = mapboxMap;
+    }
+
+    @Override
+    public boolean onMapClick(@NonNull Point point) {
+        int x = (int) mapboxMap.pixelForCoordinate(point).getX();
+        int y = (int) mapboxMap.pixelForCoordinate(point).getY();
+        Log.d("MapLayout", point.toString());
+        mapLayout.removeView(dropPin);
+        RelativeLayout.LayoutParams layout = new RelativeLayout.LayoutParams((int) (PIN_SIZE * factor), (int) (PIN_SIZE * factor));
+        layout.setMargins(x - (int) (0.5 * PIN_SIZE), y - (int) (PIN_SIZE), -1, -1);
+
+        dropPin.setLayoutParams(layout);
+        mapLayout.addView(dropPin);
+        return true;
+    }
 }
