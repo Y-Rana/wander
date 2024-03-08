@@ -77,8 +77,8 @@ public class Groups extends AppCompatActivity {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot groupInfo = task.getResult();
-                    for (int i = 1; i <= groupInfo.getDouble("groupNum"); i++ ) {
-                        addGroup(new Group(Integer.toString(i), groupInfo.getString("group" + Integer.toString(i)), Collections.singletonList("emptyAdmin")));
+                    for (int i = 1; i <= groupInfo.getLong("groupNum"); i++ ) {
+                        addGroup(new Group(Integer.toString(i), groupInfo.getString("group" + Integer.toString(i)),groupInfo.getString("location"), Collections.singletonList("emptyAdmin")));
                         //addGroupToFirestore(new Group(Integer.toString(i), groupInfo.getString("group" + Integer.toString(i)), null));
                     }
                 }
@@ -106,11 +106,12 @@ public class Groups extends AppCompatActivity {
         dialog.setContentView(R.layout.create_group);
 
         EditText editName = dialog.findViewById(R.id.editName);
+        EditText editLocation = dialog.findViewById(R.id.editLocation);
         dialog.findViewById(R.id.create_save).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addGroup(new Group("11", editName.getText().toString(), Collections.singletonList(user.getDisplayName())));
-                addGroupToFirestore(new Group("thisismyid", editName.getText().toString(), Arrays.asList(user.getDisplayName())));
+                addGroup(new Group("11", editName.getText().toString(), editLocation.getText().toString(), Collections.singletonList(user.getDisplayName())));
+                addGroupToFirestore(new Group("thisismyid", editName.getText().toString(), editLocation.getText().toString(), Arrays.asList(user.getDisplayName())));
                 dialog.cancel();
             }
         });
@@ -145,6 +146,7 @@ public class Groups extends AppCompatActivity {
         Map<String, Object> groupHash = new HashMap<>();
         groupHash.put("id", group.getGroupId());
         groupHash.put("name", group.getGroupName());
+        groupHash.put("location", group.getGroupLocation());
 
         // Add the group to Firestore
         db.collection("groupData")
@@ -169,14 +171,16 @@ public class Groups extends AppCompatActivity {
 class Group {
     private String groupId;
     private String groupName;
+    private String groupLocation;
     private List<String> groupAdmins;
     private List<String> members;
     private float[] scores;
 
-    public Group(String groupId, String groupName, List<String> groupAdmins) {
+    public Group(String groupId, String groupName, String groupLocation, List<String> groupAdmins) {
         this.groupId = groupId;
         this.groupName = groupName;
         this.groupAdmins = groupAdmins;
+        this.groupLocation = groupLocation;
     }
 
     // Getters
@@ -187,6 +191,9 @@ class Group {
     public String getGroupName() {
         return groupName;
     }
+    public String getGroupLocation() {
+        return groupLocation;
+    }
 
     public List<String> getGroupAdmins() {
         return groupAdmins;
@@ -195,8 +202,10 @@ class Group {
     public void setGroupId(String groupId) {
         this.groupId = groupId;
     }
-
     // Setters
+    public void setGroupLocation(String groupLocation) {
+        this.groupLocation = groupLocation;
+    }
     public void setGroupName(String groupName) {
         this.groupName = groupName;
     }
