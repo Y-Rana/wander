@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
 //                openCameraActivity();
 //            }
 //        });
+
         if (this.auth.getCurrentUser() == null) {
             Intent login_page = new Intent(this, LogIn.class);
             startActivity(login_page);

@@ -17,11 +17,20 @@ import android.Manifest;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import android.widget.Button;
 import com.example.wander.databinding.ActivityCameraBinding;
 import com.example.wander.databinding.ActivityMainBinding;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.Firebase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageMetadata;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
+import java.util.UUID;
 
 public class CameraActivity extends AppCompatActivity {
 
@@ -30,6 +39,10 @@ public class CameraActivity extends AppCompatActivity {
     ActivityResultLauncher<Uri> takePictureLauncher;
     Uri imageUri;
     private TextView dashboardRedirectText;
+
+    private FirebaseStorage storage;
+    private StorageReference storageReference;
+    
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,11 +53,15 @@ public class CameraActivity extends AppCompatActivity {
         imageUri = createURI();
         setTakePictureLauncher();
 
+        storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReference();
+
         dashboardRedirectText = findViewById(R.id.dashboardRedirect);
 
         cameraBinding.cameraButton.setOnClickListener(view -> {
             CameraPermission();
         });
+
 
         dashboardRedirectText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,6 +69,14 @@ public class CameraActivity extends AppCompatActivity {
                 startActivity(new Intent(CameraActivity.this, MainActivity.class));
             }
         });
+        
+        cameraBinding.uploadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                uploadPicture(imageUri);
+            }
+        });
+
     }
 
     private Uri createURI() {
@@ -80,6 +105,33 @@ public class CameraActivity extends AppCompatActivity {
                     }
                 }
         );
+    }
+
+    private void uploadPicture(Uri image) {
+        StorageReference reference = storageReference.child("posts/" + UUID.randomUUID().toString());
+        reference.putFile(image).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Toast.makeText(CameraActivity.this, "Image posted", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(CameraActivity.this, "There was an error when uploading", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        reference.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+            @Override
+            public void onSuccess(StorageMetadata storageMetadata) {
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+
+            }
+        });
     }
 
     private void CameraPermission() {
