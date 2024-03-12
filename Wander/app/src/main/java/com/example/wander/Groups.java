@@ -7,35 +7,29 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.PopupMenu;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.wander.model.Group;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Groups extends AppCompatActivity {
@@ -164,54 +158,6 @@ public class Groups extends AppCompatActivity {
                         Toast.makeText(Groups.this, "Error creating group", Toast.LENGTH_SHORT).show();
                     }
                 });
-    }
-
-}
-
-class Group {
-    private String groupId;
-    private String groupName;
-    private String groupLocation;
-    private List<String> groupAdmins;
-    private List<String> members;
-    private float[] scores;
-
-    public Group(String groupId, String groupName, String groupLocation, List<String> groupAdmins) {
-        this.groupId = groupId;
-        this.groupName = groupName;
-        this.groupAdmins = groupAdmins;
-        this.groupLocation = groupLocation;
-    }
-
-    // Getters
-    public String getGroupId() {
-        return groupId;
-    }
-
-    public String getGroupName() {
-        return groupName;
-    }
-    public String getGroupLocation() {
-        return groupLocation;
-    }
-
-    public List<String> getGroupAdmins() {
-        return groupAdmins;
-    }
-
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
-    }
-    // Setters
-    public void setGroupLocation(String groupLocation) {
-        this.groupLocation = groupLocation;
-    }
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
-    }
-
-    public void setGroupAdmins(List<String> groupAdmins) {
-        this.groupAdmins = groupAdmins;
     }
 
 }

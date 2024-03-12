@@ -1,10 +1,10 @@
-package com.example.wander;
+package com.example.wander.ui.guess;
 
-import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,11 +14,9 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.Registry;
-import com.bumptech.glide.annotation.GlideModule;
-import com.bumptech.glide.module.AppGlideModule;
+import com.example.wander.R;
 import com.example.wander.databinding.FragmentGuessBinding;
-import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.example.wander.model.Post;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -35,8 +33,6 @@ import com.mapbox.maps.MapboxMap;
 import com.mapbox.maps.plugin.gestures.GesturesPlugin;
 import com.mapbox.maps.plugin.gestures.GesturesUtils;
 import com.mapbox.maps.plugin.gestures.OnMapClickListener;
-
-import java.io.InputStream;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -59,6 +55,8 @@ public class GuessFragment extends Fragment {
     private FragmentGuessBinding binding;
 
     private String mGroupName;
+
+    private GuessFragmentViewModel mViewModel;
 
     public GuessFragment() {
         // Required empty public constructor
@@ -91,7 +89,7 @@ public class GuessFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        post = Post.getPost("groups");
+        mViewModel = new ViewModelProvider(this).get(GuessFragmentViewModel.class);
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_guess, container, false);
@@ -126,94 +124,12 @@ public class GuessFragment extends Fragment {
 
         gesturesPlugin.addOnMapClickListener(new MapClickListener(mapLayout, dropPin, mapboxMap, factor));
 
-        Glide.with(this).load(post.getImageURL()).into(imageView);
+        mViewModel.getPost().observe(getViewLifecycleOwner(), post -> {
+            Glide.with(this).load(post.getImageURL()).into(imageView);
+        });
 
         return view;
     }
-}
-
-class Post {
-    private Point location;
-    private String groupName;
-    private StorageReference imageURL;
-
-    private static FirebaseStorage storage;
-    private static FirebaseFirestore db;
-
-
-    public Post() {
-        db = FirebaseFirestore.getInstance();
-        storage = FirebaseStorage.getInstance();
-    }
-
-    public Post(Point location, String groupName, StorageReference imageURL) {
-        this.location = location;
-        this.groupName = groupName;
-        this.imageURL = imageURL;
-        db = FirebaseFirestore.getInstance();
-        storage = FirebaseStorage.getInstance();
-    }
-
-    public Point getLocation() {
-        return location;
-    }
-
-    public void setLocation(Point location) {
-        this.location = location;
-    }
-
-    public String getGroupName() {
-        return groupName;
-    }
-
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
-    }
-
-    public StorageReference getImageURL() {
-        return imageURL;
-    }
-
-    public void setImageURL(StorageReference imageURL) {
-        this.imageURL = imageURL;
-    }
-
-    //Able to get the post as well as the image url, however this completes after Glide loads the
-    //image, so need to make it so glide waits for the method to complete.
-    public static Post getPost(String groupName) {
-        final Post post = new Post();
-
-        DocumentReference desiredPost = db.collection("posts").document("post1");
-        desiredPost.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot result = task.getResult();
-
-                    GeoPoint location = (GeoPoint) result.get("location");
-                    Log.d("GetPost", location.toString());
-                    StorageReference ref = storage.getReferenceFromUrl((String) result.get("imagePath"));
-                    Log.d("GetPost", ref.toString());
-
-                    post.setLocation(Point.fromLngLat(location.getLatitude(), location.getLongitude()));
-                    post.setGroupName(groupName);
-                    post.setImageURL(ref);
-
-                } else {
-                    Log.d("GetPost", "unsuccessful");
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d("GetPost", e.getMessage());
-            }
-        });
-
-        return post;
-    }
-
 }
 
 

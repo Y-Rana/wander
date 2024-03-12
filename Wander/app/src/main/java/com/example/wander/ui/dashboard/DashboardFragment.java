@@ -1,6 +1,7 @@
 package com.example.wander.ui.dashboard;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +28,7 @@ public class DashboardFragment extends Fragment {
         View root = binding.getRoot();
 
         final TextView textView = binding.textDashboard;
-        dashboardViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+        dashboardViewModel.getPosts().observe(getViewLifecycleOwner(), text -> Log.d("Dashboard", "Change in posts, " + text.size()));
         return root;
 
 
