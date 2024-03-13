@@ -78,7 +78,7 @@ public class Groups extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
 
-        DocumentReference userGroups = db.collection("groupMembership").document(user.getDisplayName());
+        DocumentReference userGroups = db.collection("groupMembership").document(user.getUid());
 
         DocumentReference allGroups = db.collection("groupData").document("groups");
 

@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.wander.databinding.FragmentDashboardBinding;
+import com.example.wander.model.Post;
 
 public class DashboardFragment extends Fragment {
 
@@ -28,7 +30,18 @@ public class DashboardFragment extends Fragment {
         View root = binding.getRoot();
 
         final TextView textView = binding.textDashboard;
-        dashboardViewModel.getPosts().observe(getViewLifecycleOwner(), text -> Log.d("Dashboard", "Change in posts, " + text.size()));
+        final RelativeLayout feed = binding.scrollLayout;
+
+        dashboardViewModel.getPosts().observe(getViewLifecycleOwner(), posts -> {
+                Log.d("Dashboard", "Change in posts, " + posts.size());
+                for (Post post : posts) {
+                    Log.d("Dashboard", "Post from " + post.getGroupName());
+                    if (post.getImageURL() != null) {
+                        feed.addView(new PostLayout(getContext(), post));
+                    }
+                }
+
+        });
         return root;
 
 
