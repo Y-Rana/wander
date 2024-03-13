@@ -6,12 +6,17 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.Manifest;
 import android.view.View;
@@ -35,6 +40,8 @@ import java.util.UUID;
 public class CameraActivity extends AppCompatActivity {
 
     private static final int CAMERA_PERMISSION_CODE = 1;
+    private static final int MULT_KEY = 1;
+
     ActivityCameraBinding cameraBinding;
     ActivityResultLauncher<Uri> takePictureLauncher;
     Uri imageUri;
@@ -42,10 +49,13 @@ public class CameraActivity extends AppCompatActivity {
 
     private FirebaseStorage storage;
     private StorageReference storageReference;
-    
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        String[] PERMISSIONS;
+
         super.onCreate(savedInstanceState);
         cameraBinding = ActivityCameraBinding.inflate(getLayoutInflater());
         setContentView(cameraBinding.getRoot());
@@ -58,10 +68,20 @@ public class CameraActivity extends AppCompatActivity {
 
         dashboardRedirectText = findViewById(R.id.dashboardRedirect);
 
-        cameraBinding.cameraButton.setOnClickListener(view -> {
-            CameraPermission();
-        });
 
+
+        PERMISSIONS = new String[] {
+                Manifest.permission.CAMERA,
+                Manifest.permission.ACCESS_FINE_LOCATION
+        };
+
+        cameraBinding.cameraButton.setOnClickListener(view -> {
+            if (!hasPermissions(CameraActivity.this, PERMISSIONS)) {
+                ActivityCompat.requestPermissions(CameraActivity.this, PERMISSIONS, MULT_KEY);
+            } else {
+                takePictureLauncher.launch(imageUri);
+            }
+        });
 
         dashboardRedirectText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,7 +89,7 @@ public class CameraActivity extends AppCompatActivity {
                 startActivity(new Intent(CameraActivity.this, MainActivity.class));
             }
         });
-        
+
         cameraBinding.uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -77,6 +97,20 @@ public class CameraActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+
+    private boolean hasPermissions(Context context, String... PERMISSIONS) {
+
+        if (context != null && PERMISSIONS != null) {
+            for (String permission : PERMISSIONS) {
+
+                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private Uri createURI() {
@@ -108,8 +142,13 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     private void uploadPicture(Uri image) {
-        StorageReference reference = storageReference.child("posts/" + UUID.randomUUID().toString());
-        reference.putFile(image).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+        StorageMetadata metadata = new StorageMetadata.Builder()
+                .setContentType("image/jpg")
+                .build();
+        StorageReference reference = storageReference.child("Posts/" + UUID.randomUUID().toString());
+
+
+        reference.putFile(image, metadata).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 Toast.makeText(CameraActivity.this, "Image posted", Toast.LENGTH_SHORT).show();
@@ -121,37 +160,22 @@ public class CameraActivity extends AppCompatActivity {
             }
         });
 
-        reference.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
-            @Override
-            public void onSuccess(StorageMetadata storageMetadata) {
-
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-
-            }
-        });
-    }
-
-    private void CameraPermission() {
-        if (ActivityCompat.checkSelfPermission(CameraActivity.this,
-                android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(CameraActivity.this, new String[]{android.Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
-        } else {
-            takePictureLauncher.launch(imageUri);
-        }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == CAMERA_PERMISSION_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+        if (requestCode == MULT_KEY) {
+            if ((grantResults[0] == PackageManager.PERMISSION_GRANTED) && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 takePictureLauncher.launch(imageUri);
             } else {
-                Toast.makeText(this, "Camera permission denied, please allow permission to take picture", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Permissions denied, please allow permissions to take picture", Toast.LENGTH_SHORT).show();
             }
         }
+
     }
+
+
 }
+

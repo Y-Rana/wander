@@ -49,13 +49,13 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
 
-//        pictureButton = (Button) findViewById(R.id.picture_button);
-//        pictureButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                openCameraActivity();
-//            }
-//        });
+        pictureButton = (Button) findViewById(R.id.picture_button);
+        pictureButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openCameraActivity();
+            }
+        });
 
         if (this.auth.getCurrentUser() == null) {
             Intent login_page = new Intent(this, LogIn.class);
