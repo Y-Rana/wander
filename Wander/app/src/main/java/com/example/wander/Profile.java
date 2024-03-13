@@ -18,18 +18,22 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class Profile extends AppCompatActivity {
     private EditText newUname;
     private TextView resetPass, uName;
     private ImageView dashboardRedirectButton;
     private Button applyButton, logoutButton;
+    private FirebaseFirestore db;
     private FirebaseAuth auth;
     private FirebaseUser user;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+
+        db = FirebaseFirestore.getInstance();
 
         uName = findViewById(R.id.userName);
         newUname = findViewById(R.id.newUname);
@@ -48,6 +52,7 @@ public class Profile extends AppCompatActivity {
         applyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String oldUnameString = uName.getText().toString();
                 String newUnameString = newUname.getText().toString();
                 if (newUnameString != null && newUnameString != "") {
                     UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
