@@ -18,6 +18,13 @@ public class GuessFragmentViewModel extends ViewModel {
         mPost.setValue(post);
     }
 
+    // Default constructor
+    public GuessFragmentViewModel() {
+        mPost = new MutableLiveData<>();
+        // Initialize mPost with a default value, if needed
+    }
+
+
     public LiveData<Post> getPost() {
         return mPost;
     }
