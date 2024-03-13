@@ -1,4 +1,4 @@
-package com.example.wander;
+package com.example.wander.ui.guess;
 
 import android.content.Context;
 
