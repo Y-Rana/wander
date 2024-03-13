@@ -1,5 +1,7 @@
 package com.example.wander.ui.dashboard;
 
+import static androidx.lifecycle.LiveDataKt.observe;
+
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -27,6 +29,8 @@ public class DashboardViewModel extends ViewModel {
     private final MutableLiveData<String> mText;
     private final MutableLiveData<List<String>> mUserGroups;
 
+    private final MutableLiveData<Post> mPost;
+
     private FirebaseStorage storage;
 
     private FirebaseFirestore db;
@@ -37,6 +41,7 @@ public class DashboardViewModel extends ViewModel {
         mText = new MutableLiveData<>();
         mText.setValue("This is dashboard fragment");
         mPosts = new MutableLiveData<>();
+        mPost = new MutableLiveData<>();
         mPosts.setValue(new ArrayList<>());
         mUserGroups = new MutableLiveData<>();
         mUserGroups.setValue(getUserGroups());
@@ -55,15 +60,23 @@ public class DashboardViewModel extends ViewModel {
 
         List<Post> posts = mPosts.getValue();
 
-        for (String name : mUserGroups.getValue()) {
-            Post post = Post.getPostFromGroup(name);
-
+        mPost.observeForever(post -> {
             if (post != null) {
+                Log.d("FetchPosts", "Post from " + post.getGroupName());
                 posts.add(post);
+            }
+
+            mPosts.setValue(posts);
+        });
+
+        for (String name : mUserGroups.getValue()) {
+
+            if (name != null) {
+                Post.getPostFromGroup(name, mPost);
             }
         }
 
-        mPosts.setValue(posts);
+
 
     }
 

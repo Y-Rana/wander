@@ -3,6 +3,7 @@ package com.example.wander.model;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -63,9 +64,8 @@ public class Post {
 
     //Make modification to the representation of groups, where the post name is also stored in a reference
     //in the groupData
-    public static Post getPostFromGroup(String groupName) {
-        final Post post = new Post();
-
+    public static void getPostFromGroup(String groupName, MutableLiveData<Post> post) {
+        db = FirebaseFirestore.getInstance();
         DocumentReference desiredGroupMembership = db.collection("groupData").document(groupName);
         desiredGroupMembership.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -80,16 +80,16 @@ public class Post {
                 getPost(postRef, post);
             }
         }).addOnFailureListener(e -> Log.d("GetPostReference", e.getMessage()));
-
-        return post;
     }
 
     //Able to get the post as well as the image url, however this completes after Glide loads the
     //image, so need to make it so glide waits for the method to complete.
-    private static void getPost(DocumentReference postRef, Post post) {
+    private static void getPost(DocumentReference postRef, MutableLiveData<Post> post) {
         if (postRef == null) {
             return;
         }
+
+        storage = FirebaseStorage.getInstance();
 
         postRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -101,10 +101,11 @@ public class Post {
                 Log.d("GetPost", ref.toString());
                 String groupName = (String) result.get("groupName");
 
-                post.setLocation(Point.fromLngLat(location.getLatitude(), location.getLongitude()));
-                post.setGroupName(groupName);
-                post.setImageURL(ref);
-
+                Post temp = new Post();
+                temp.setLocation(Point.fromLngLat(location.getLatitude(), location.getLongitude()));
+                temp.setGroupName(groupName);
+                temp.setImageURL(ref);
+                post.setValue(temp);
             }
         }).addOnFailureListener(e -> Log.d("GetPost", e.getMessage()));
     }
