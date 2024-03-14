@@ -17,6 +17,8 @@ import com.bumptech.glide.Glide;
 import com.example.wander.R;
 import com.example.wander.databinding.FragmentGuessBinding;
 import com.example.wander.model.Post;
+import com.example.wander.ui.dashboard.DashboardFragment;
+import com.example.wander.ui.dashboard.DashboardViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -43,9 +45,9 @@ public class GuessFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String GROUP_NAME = null;
+    private static Post POST = null;
 
-    private Post post;
+    private Post mPost;
     private ImageView dropPin;
 
     private FirebaseFirestore db;
@@ -54,9 +56,7 @@ public class GuessFragment extends Fragment {
 
     private FragmentGuessBinding binding;
 
-    private String mGroupName;
-
-    private GuessFragmentViewModel mViewModel;
+    private DashboardViewModel mViewModel;
 
     public GuessFragment() {
         // Required empty public constructor
@@ -66,15 +66,12 @@ public class GuessFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param groupName The image path for the post picture.
+     * @param post The Post object.
      * @return A new instance of fragment GuessFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static GuessFragment newInstance(String groupName) {
+    public static GuessFragment newInstance(Post post) {
         GuessFragment fragment = new GuessFragment();
-        Bundle args = new Bundle();
-        args.putString(GROUP_NAME, "groups");
-        fragment.setArguments(args);
         return fragment;
     }
 
@@ -89,7 +86,8 @@ public class GuessFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mViewModel = new ViewModelProvider(this).get(GuessFragmentViewModel.class);
+
+        mViewModel = new ViewModelProvider(requireActivity()).get(DashboardViewModel.class);
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_guess, container, false);
@@ -124,8 +122,12 @@ public class GuessFragment extends Fragment {
 
         gesturesPlugin.addOnMapClickListener(new MapClickListener(mapLayout, dropPin, mapboxMap, factor));
 
-        mViewModel.getPost().observe(getViewLifecycleOwner(), post -> {
-            Glide.with(this).load(post.getImageURL()).into(imageView);
+        mViewModel.getGuessPost().observe(getViewLifecycleOwner(), gpost -> {
+            Log.d("GuessFragment", "change");
+            if (gpost != null) {
+                Log.d("GuessFragment", gpost.getImageURL().getPath());
+                Glide.with(imageView).load(gpost.getImageURL()).into(imageView);
+            }
         });
 
         return view;

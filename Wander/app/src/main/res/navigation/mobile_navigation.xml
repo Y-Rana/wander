@@ -12,5 +12,10 @@
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_dashboard" />
 
+    <fragment
+        android:id="@+id/navigation_guess"
+        android:name="com.example.wander.ui.guess.GuessFragment"
+        android:label="Guess"
+        tools:layout="@layout/fragment_guess"/>
 
 </navigation>

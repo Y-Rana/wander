@@ -26,6 +26,7 @@ import java.util.List;
 
 public class DashboardViewModel extends ViewModel {
     private final MutableLiveData<List<Post>> mPosts;
+    private final MutableLiveData<Post> guessPost;
     private final MutableLiveData<String> mText;
     private final MutableLiveData<List<String>> mUserGroups;
 
@@ -42,6 +43,7 @@ public class DashboardViewModel extends ViewModel {
         mText.setValue("This is dashboard fragment");
         mPosts = new MutableLiveData<>();
         mPost = new MutableLiveData<>();
+        guessPost = new MutableLiveData<>();
         mPosts.setValue(new ArrayList<>());
         mUserGroups = new MutableLiveData<>();
         mUserGroups.setValue(getUserGroups());
@@ -53,6 +55,10 @@ public class DashboardViewModel extends ViewModel {
 
     public LiveData<List<Post>> getPosts() {
         return mPosts;
+    }
+
+    public LiveData<Post> getGuessPost() {
+        return guessPost;
     }
 
     private void fetchPosts() {
@@ -107,5 +113,10 @@ public class DashboardViewModel extends ViewModel {
         }).addOnFailureListener(e -> Log.e("GetUserGroups", e.getMessage()));
         //Add to list
         return groups;
+    }
+
+    public void setGuessPost(Post post) {
+        Log.d("SetGuessPost", post.getImageURL().getPath());
+        guessPost.setValue(post);
     }
 }

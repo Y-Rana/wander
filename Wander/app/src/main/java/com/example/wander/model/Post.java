@@ -16,6 +16,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.mapbox.geojson.Point;
 
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
 public class Post {
     private Point location;
     private String groupName;
@@ -96,6 +99,12 @@ public class Post {
                 DocumentSnapshot result = task.getResult();
 
                 GeoPoint location = (GeoPoint) result.get("location");
+
+                if (location == null) {
+                    post.setValue(null);
+                    return;
+                }
+
                 Log.d("GetPost", location.toString());
                 StorageReference ref = storage.getReferenceFromUrl((String) result.get("imagePath"));
                 Log.d("GetPost", ref.toString());
@@ -109,5 +118,6 @@ public class Post {
             }
         }).addOnFailureListener(e -> Log.d("GetPost", e.getMessage()));
     }
+
 
 }
