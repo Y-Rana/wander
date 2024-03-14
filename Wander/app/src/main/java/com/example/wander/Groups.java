@@ -5,6 +5,7 @@ import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -27,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,9 +39,13 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.AggregateQuery;
+import com.google.firebase.firestore.AggregateQuerySnapshot;
+import com.google.firebase.firestore.AggregateSource;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -56,6 +62,8 @@ public class Groups extends AppCompatActivity {
 
     private LinearLayout groupsContainer;
     private ScrollView groupsScrollView;
+
+    private int groupCount;
 
     private FirebaseFirestore db;
     private FirebaseAuth auth;
@@ -78,12 +86,8 @@ public class Groups extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
 
-        DocumentReference userGroups = db.collection("groupMembership").document(user.getUid());
-
-        DocumentReference allGroups = db.collection("groupData").document("groups");
-
         // Load groups that user is a member of
-        db.collection("groupTest")
+        db.collection("groupData")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -93,7 +97,7 @@ public class Groups extends AppCompatActivity {
                                 String members = group.get("members").toString();
                                 String userName = user.getDisplayName();
                                 if (members.contains(userName)) {
-                                    addGroup(new Group(group.get("id").toString(), group.get("name").toString(), "eindhoven", Arrays.asList(group.get("members").toString()), Arrays.asList(group.get("members").toString())));
+                                    addGroup(new Group(group.get("name").toString(), "eindhoven", Arrays.asList(group.get("admins").toString()), Arrays.asList(group.get("members").toString()), true));
                                 }
                             }
                         } else {
@@ -113,22 +117,23 @@ public class Groups extends AppCompatActivity {
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showPopUp();
+                showCreatePopUp();
             }
         });
     }
 
-    private void showPopUp() {
+    private void showCreatePopUp() {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.create_group);
 
         EditText editName = dialog.findViewById(R.id.editName);
         EditText editLocation = dialog.findViewById(R.id.editLocation);
+        SwitchCompat requestToJoin = dialog.findViewById(R.id.rtj_switch);
         dialog.findViewById(R.id.create_save).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addGroup(new Group("11", editName.getText().toString(), "eindhoven", Collections.singletonList(user.getDisplayName()), Collections.singletonList(user.getDisplayName())));
-                addGroupToFirestore(new Group("thisismyid", editName.getText().toString(), "eindhoven", Collections.singletonList(user.getDisplayName()), Collections.singletonList(user.getDisplayName())));
+                addGroup(new Group(editName.getText().toString(), editLocation.getText().toString(), Collections.singletonList(user.getDisplayName()), Collections.singletonList(user.getDisplayName()), requestToJoin.isChecked()));
+                addGroupToFirestore(new Group(editName.getText().toString(), editLocation.getText().toString(), Collections.singletonList(user.getDisplayName()), Collections.singletonList(user.getDisplayName()), requestToJoin.isChecked()));
                 dialog.cancel();
             }
         });
@@ -142,8 +147,10 @@ public class Groups extends AppCompatActivity {
         TextView nameView = view.findViewById(R.id.group_name);
         Button join = view.findViewById(R.id.join);
         Button dropdown = view.findViewById(R.id.info);
+        View groupSettings = view.findViewById(R.id.group_card_settings);
         FrameLayout expand_content = view.findViewById(R.id.group_card_content);
         LinearLayout layout = view.findViewById(R.id.layout);
+        TextView infoText = view.findViewById(R.id.info_text);
 
         layout.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
 
@@ -152,20 +159,37 @@ public class Groups extends AppCompatActivity {
         boolean admin = false;
         boolean member = false;
 
-        // Determine if user is admin or member of group
-        for (int i = 0; i < group.getGroupAdmins().size(); i++) {
-            if (group.getGroupAdmins().get(i).contains(user.getDisplayName())) {
-                admin = true;
-            }
-            if (group.getMembers().get(i).contains(user.getDisplayName())) {
+        // Determine if user is a member of group
+        for (int i = 0; i < group.getMembers().size(); i++) {
+            String formattedString = group.getMembers().get(i).toString()
+                .replace("[", "")
+                .replace("]", "");
+            if (formattedString.equals(user.getDisplayName())) {
                 member = true;
+            }
+        }
+
+        // Determine if user is an admin of group
+        for (int i = 0; i < group.getMembers().size(); i++) {
+            String formattedString = group.getGroupAdmins().get(i).toString()
+                    .replace("[", "")
+                    .replace("]", "");
+            if (formattedString.equals(user.getDisplayName())) {
+                admin = true;
             }
         }
 
         if (member) {
             join.setText("Joined");
+            join.setEnabled(false);
         } else {
             join.setText("Join");
+        }
+
+        if (admin) {
+            groupSettings.setVisibility(View.VISIBLE);
+        } else {
+            groupSettings.setVisibility(GONE);
         }
 
         dropdown.setOnClickListener(new View.OnClickListener() {
@@ -190,6 +214,21 @@ public class Groups extends AppCompatActivity {
             }
         });
 
+        groupSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showSettingsPopUp();
+            }
+        });
+
+        if (group.getRequestToJoin()) {
+            infoText.setText("request to join = true");
+        } else {
+            infoText.setText("request to join = false");
+        }
+
+        infoText.setText(infoText.getText().toString() + "\n location = " + group.getGroupLocation());
+
         groupsContainer.addView(view);
 
         // Scroll to the bottom to show the latest group
@@ -201,28 +240,66 @@ public class Groups extends AppCompatActivity {
         });
     }
 
-    private void addGroupToFirestore(Group group) {
-        // Create a new group object
-        Map<String, Object> groupHash = new HashMap<>();
-        groupHash.put("id", group.getGroupId());
-        groupHash.put("name", group.getGroupName());
-        groupHash.put("members", group.getMembers().toString());
+    private void showSettingsPopUp() {
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.group_settings);
 
-        // Add the group to Firestore
-        db.collection("groupData")
-                .add(groupHash)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        // DocumentSnapshot addedGroup = documentReference.get();
-                        Toast.makeText(Groups.this, "Group created successfully", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(Groups.this, "Error creating group", Toast.LENGTH_SHORT).show();
-                    }
-                });
+        EditText editName = dialog.findViewById(R.id.editNewName);
+        EditText editRefresh = dialog.findViewById(R.id.editRefreshTime);
+        EditText editPosters = dialog.findViewById(R.id.editPosters);
+        dialog.findViewById(R.id.settings_apply).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.cancel();
+            }
+        });
+        dialog.findViewById(R.id.closeSettings).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.cancel();
+            }
+        });
+        dialog.show();
     }
+
+    private void addGroupToFirestore(Group group) {
+
+        Query query = db.collection("groupData");
+        AggregateQuery countQuery = query.count();
+
+        countQuery.get(AggregateSource.SERVER).addOnCompleteListener(new OnCompleteListener<AggregateQuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<AggregateQuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    // Count fetched successfully
+                    AggregateQuerySnapshot snapshot = task.getResult();
+                    groupCount = (int) snapshot.getCount();
+                    Log.d(TAG, "Count: " + groupCount);
+                    Map<String, Object> postHash = new HashMap<>();
+                    postHash.put("groupName", group.getGroupName());
+                    postHash.put("imagePath", "");
+                    postHash.put("location", group.getGroupLocation());
+                    postHash.put("posterName", "postergoeshere");
+
+                    // Add the post to Firestore
+                    db.collection("posts").document("post " + (groupCount+1)).set(postHash);
+
+                    Map<String, Object> groupHash = new HashMap<>();
+                    groupHash.put("name", group.getGroupName());
+                    groupHash.put("members", group.getMembers());
+                    groupHash.put("admins", group.getGroupAdmins());
+                    groupHash.put("location", group.getGroupLocation());
+                    groupHash.put("requestToJoin", group.getRequestToJoin());
+                    groupHash.put("postRef", db.collection("posts").document("post " + (groupCount+1)));
+
+                    // Add the group to Firestore
+                    db.collection("groupData").document("group " + (groupCount+1)).set(groupHash);
+                } else {
+                    Log.d(TAG, "Count failed: ", task.getException());
+                }
+            }
+        });
+
+    }
+
 }

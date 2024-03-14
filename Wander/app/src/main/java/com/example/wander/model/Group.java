@@ -3,25 +3,23 @@ package com.example.wander.model;
 import java.util.List;
 
 public class Group {
-    private String groupId;
     private String groupName;
     private String groupLocation;
     private List<String> groupAdmins;
     private List<String> members;
     private float[] scores;
+    private String postRef;
+    private boolean requestToJoin;
 
-    public Group(String groupId, String groupName, String groupLocation, List<String> groupAdmins, List<String> members) {
-        this.groupId = groupId;
+    public Group(String groupName, String groupLocation, List<String> groupAdmins, List<String> members, boolean requestToJoin) {
         this.groupName = groupName;
         this.groupAdmins = groupAdmins;
         this.members = members;
         this.groupLocation = groupLocation;
+        this.requestToJoin = requestToJoin;
     }
 
     // Getters
-    public String getGroupId() {
-        return groupId;
-    }
     public String getGroupName() {
         return groupName;
     }
@@ -34,11 +32,11 @@ public class Group {
     public List<String> getMembers() {
         return members;
     }
+    public boolean getRequestToJoin() {
+        return requestToJoin;
+    }
 
     // Setters
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
-    }
     public void setGroupLocation(String groupLocation) {
         this.groupLocation = groupLocation;
     }
@@ -53,5 +51,8 @@ public class Group {
     }
     public void removeMember(String member) {
         members.remove(member);
+    }
+    public void setRequestToJoin(boolean value) {
+        requestToJoin = value;
     }
 }

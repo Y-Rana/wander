@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#7D7D7D">
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="121dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="122dp"
+        android:text="Group Settings"
+        android:textColor="#A9000000"
+        android:textSize="34sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="108dp"
+        android:fontFamily="sans-serif-black"
+        android:text="Refresh time"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="44dp"
+        android:fontFamily="sans-serif-black"
+        android:text="days"
+        android:textSize="20sp"
+        app:layout_constraintStart_toEndOf="@+id/editPosters"
+        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
+    <TextView
+        android:id="@+id/textView7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="32dp"
+        android:fontFamily="sans-serif-black"
+        android:text="Change name"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView4" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="92dp"
+        android:fontFamily="sans-serif-black"
+        android:text="Posters"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView4" />
+
+    <EditText
+        android:id="@+id/editNewName"
+        android:layout_width="151dp"
+        android:layout_height="41dp"
+
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="92dp"
+        android:background="@drawable/wander_edittext"
+
+        android:drawablePadding="8dp"
+        android:hint="Enter Name"
+
+        android:padding="8dp"
+        android:singleLine="true"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toEndOf="@+id/textView7"
+        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
+    <Button
+        android:id="@+id/settings_apply"
+        android:layout_width="117dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="147dp"
+        android:layout_marginTop="29dp"
+        android:backgroundTint="@color/wander_red"
+        android:text="APPLY"
+        android:textSize="18sp"
+        app:cornerRadius="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editRefreshTime" />
+
+    <EditText
+        android:id="@+id/editPosters"
+
+        android:layout_width="52dp"
+        android:layout_height="42dp"
+
+        android:layout_marginStart="33dp"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/wander_edittext"
+        android:drawablePadding="8dp"
+        android:ems="10"
+        android:inputType="number"
+        android:padding="8dp"
+        android:singleLine="true"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toEndOf="@+id/textView4"
+        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
+    <EditText
+        android:id="@+id/editRefreshTime"
+
+        android:layout_width="52dp"
+        android:layout_height="42dp"
+
+        android:layout_marginStart="80dp"
+        android:layout_marginTop="24dp"
+
+        android:background="@drawable/wander_edittext"
+        android:drawablePadding="8dp"
+        android:ems="10"
+        android:inputType="number"
+        android:padding="8dp"
+        android:singleLine="true"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toEndOf="@+id/textView6"
+        app:layout_constraintTop_toBottomOf="@+id/editNewName" />
+
+    <ImageView
+        android:id="@+id/closeSettings"
+        android:layout_width="36dp"
+        android:layout_height="37dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/outline_cancel_24" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
