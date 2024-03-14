@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import android.content.Intent;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -29,6 +31,7 @@ public class LogIn extends AppCompatActivity {
         setContentView(R.layout.activity_log_in);
         loginEmail = findViewById(R.id.login_email);
         loginPassword = findViewById(R.id.login_password);
+        loginPassword.setTransformationMethod(new PasswordTransformationMethod());
         loginButton = findViewById(R.id.login_button);
         signupRedirectText = findViewById(R.id.signupRedirect);
         auth = FirebaseAuth.getInstance();
@@ -43,7 +46,7 @@ public class LogIn extends AppCompatActivity {
                                 .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                                     @Override
                                     public void onSuccess(AuthResult authResult) {
-                                        Toast.makeText(LogIn.this, "Login Successful", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(LogIn.this, "Logged in!", Toast.LENGTH_SHORT).show();
 
                                         //startActivity(new Intent(LogIn.this, MainActivity.class));
                                         finish();
@@ -51,16 +54,16 @@ public class LogIn extends AppCompatActivity {
                                 }).addOnFailureListener(new OnFailureListener() {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(LogIn.this, "Login Failed", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(LogIn.this, "Login failed!", Toast.LENGTH_SHORT).show();
                                     }
                                 });
                     } else {
-                        loginPassword.setError("Empty fields are not allowed");
+                        loginPassword.setError("Please enter a password");
                     }
                 } else if (email.isEmpty()) {
-                    loginEmail.setError("Empty fields are not allowed");
+                    loginEmail.setError("Please enter an email");
                 } else {
-                    loginEmail.setError("Please enter correct email");
+                    loginEmail.setError("Please enter a correct email");
                 }
             }
         });

@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -29,6 +31,7 @@ public class SignUp extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         signupEmail = findViewById(R.id.signup_email);
         signupPassword = findViewById(R.id.signup_password);
+        signupPassword.setTransformationMethod(new PasswordTransformationMethod());
         signupButton = findViewById(R.id.signup_button);
         loginRedirectText = findViewById(R.id.loginRedirect);
         signupButton.setOnClickListener(new View.OnClickListener() {

@@ -28,6 +28,7 @@
         android:drawablePadding="8dp"
         android:hint="Email"
         android:padding="8dp"
+        android:singleLine="true"
         android:textColor="@color/black" />
 
     <EditText
@@ -39,7 +40,8 @@
         android:drawablePadding="8dp"
         android:hint="Password"
         android:padding="8dp"
-        android:textColor="@color/black" />
+        android:textColor="@color/black"
+        android:inputType="textPassword" />
 
     <Button
         android:id="@+id/signup_button"

@@ -34,6 +34,8 @@ public class PostLayout extends RelativeLayout {
         this.post = post;
         header.setText(getHeaderText());
         header.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 100));
+        header.setPadding(40, 20, 40, 0);
+        header.setTextSize(20);
         loadImage();
         super.addView(header);
         super.addView(postPic);
