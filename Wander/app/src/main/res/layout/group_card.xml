@@ -34,7 +34,7 @@
                     android:id="@+id/group_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="68dp"
+                    android:layout_marginStart="70dp"
                     android:layout_marginTop="16dp"
                     android:text="Name"
                     android:textFontWeight="1000"
@@ -76,6 +76,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_marginBottom="4dp"
+                    android:layout_marginLeft="35dp"
+                    android:backgroundTint="@color/wander_dark_grey"
+                    android:textSize="18sp"
+                    app:cornerRadius="20dp"
                     android:text="Join" />
 
                 <Button
@@ -84,6 +88,11 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
                     android:layout_marginBottom="4dp"
+                    android:layout_marginLeft="50dp"
+                    android:layout_gravity="right"
+                    android:backgroundTint="@color/wander_dark_grey"
+                    android:textSize="18sp"
+                    app:cornerRadius="20dp"
                     android:text="Info" />
             </LinearLayout>
 
