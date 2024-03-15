@@ -22,6 +22,7 @@ import java.io.Serializable;
 public class Post {
     private Point location;
     private String groupName;
+    private String posterName;
     private StorageReference imageURL;
 
     private static FirebaseStorage storage;
@@ -52,9 +53,15 @@ public class Post {
     public String getGroupName() {
         return groupName;
     }
+    public String getPosterName() {
+        return posterName;
+    }
 
     public void setGroupName(String groupName) {
         this.groupName = groupName;
+    }
+    public void setPosterName(String posterName) {
+        this.posterName = posterName;
     }
 
     public StorageReference getImageURL() {
@@ -109,10 +116,12 @@ public class Post {
                 StorageReference ref = storage.getReferenceFromUrl((String) result.get("imagePath"));
                 Log.d("GetPost", ref.toString());
                 String groupName = (String) result.get("groupName");
+                String posterName = (String) result.get("posterName");
 
                 Post temp = new Post();
                 temp.setLocation(Point.fromLngLat(location.getLatitude(), location.getLongitude()));
                 temp.setGroupName(groupName);
+                temp.setPosterName(posterName);
                 temp.setImageURL(ref);
                 post.setValue(temp);
             }
