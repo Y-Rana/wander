@@ -86,9 +86,9 @@
                     android:id="@+id/info"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
+
                     android:layout_marginBottom="4dp"
-                    android:layout_marginLeft="50dp"
+                    android:layout_marginLeft="40dp"
                     android:layout_gravity="right"
                     android:backgroundTint="@color/wander_dark_grey"
                     android:textSize="18sp"

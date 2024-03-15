@@ -23,12 +23,12 @@ public class PostLayout extends RelativeLayout {
     public PostLayout(Context context, @NonNull Post post) {
         super(context);
         LayoutParams layout = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-        layout.setMargins(-1, 100, -1, -1);
+        layout.setMargins(80, 100, 80, -1);
         super.setLayoutParams(layout);
         postPic = new ImageView(context);
 
         ViewGroup.LayoutParams picLayout = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 700);
-        postPic.layout(0, 60, 0, 0);
+        postPic.layout(0, 60,  0, 0);
         postPic.setLayoutParams(picLayout);
         header = new TextView(context);
         this.post = post;
