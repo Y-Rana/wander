@@ -19,6 +19,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.example.wander.model.*;
+import com.mapbox.geojson.Point;
 
 import java.util.ArrayList;
 import java.util.Collections;

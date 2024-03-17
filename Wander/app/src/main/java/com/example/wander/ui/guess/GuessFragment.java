@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
@@ -45,18 +46,10 @@ public class GuessFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static Post POST = null;
-
-    private Post mPost;
     private ImageView dropPin;
 
-    private FirebaseFirestore db;
-
-    private FirebaseStorage storage;
-
-    private FragmentGuessBinding binding;
-
     private DashboardViewModel mViewModel;
+    private GuessFragmentViewModel mGuessModel;
 
     public GuessFragment() {
         // Required empty public constructor
@@ -78,16 +71,13 @@ public class GuessFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        db = FirebaseFirestore.getInstance();
-        storage = FirebaseStorage.getInstance();
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         mViewModel = new ViewModelProvider(requireActivity()).get(DashboardViewModel.class);
+        mGuessModel = new ViewModelProvider(this).get(GuessFragmentViewModel.class);
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_guess, container, false);
@@ -96,6 +86,7 @@ public class GuessFragment extends Fragment {
         MapView mapView = (MapView) view.findViewById(R.id.mapView);
         RelativeLayout layout = (RelativeLayout) view.findViewById(R.id.guess_layout);
         dropPin = (ImageView) view.findViewById(R.id.drop_pin);
+        Button guessButton = (Button) view.findViewById(R.id.guess_button);
 
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,6 +95,7 @@ public class GuessFragment extends Fragment {
                 imageView.setLayoutParams(mapLayout.getLayoutParams());
 
                 mapLayout.setLayoutParams(swap);
+
                 mapView.setLayoutParams(swap);
 
                 layout.removeView(mapLayout);
@@ -115,17 +107,20 @@ public class GuessFragment extends Fragment {
             }
         });
 
+        guessButton.setOnClickListener(click -> mGuessModel.handleSubmit());
+
         GesturesPlugin gesturesPlugin = GesturesUtils.getGestures(mapView);
         MapboxMap mapboxMap = mapView.getMapboxMap();
 
         float factor = view.getContext().getResources().getDisplayMetrics().density;
 
-        gesturesPlugin.addOnMapClickListener(new MapClickListener(mapLayout, dropPin, mapboxMap, factor));
+        gesturesPlugin.addOnMapClickListener(new MapClickListener(mapLayout, dropPin, mapboxMap, factor, mGuessModel));
 
         mViewModel.getGuessPost().observe(getViewLifecycleOwner(), gpost -> {
             Log.d("GuessFragment", "change");
             if (gpost != null) {
                 Log.d("GuessFragment", gpost.getImageURL().getPath());
+                mGuessModel.setAccLocation(gpost.getLocation());
                 Glide.with(imageView).load(gpost.getImageURL()).into(imageView);
             }
         });
@@ -146,11 +141,15 @@ class MapClickListener implements OnMapClickListener {
     private final int PIN_SIZE = 20;
     private final float factor;
 
-    public MapClickListener(RelativeLayout mapLayout, ImageView dropPin, MapboxMap mapboxMap, float factor) {
+    private final GuessFragmentViewModel guessModel;
+
+    public MapClickListener(RelativeLayout mapLayout, ImageView dropPin, MapboxMap mapboxMap, float factor,
+                            GuessFragmentViewModel guessModel) {
         this.mapLayout = mapLayout;
         this.dropPin = dropPin;
         this.factor = factor;
         this.mapboxMap = mapboxMap;
+        this.guessModel = guessModel;
     }
 
     @Override
@@ -158,6 +157,9 @@ class MapClickListener implements OnMapClickListener {
         int x = (int) mapboxMap.pixelForCoordinate(point).getX();
         int y = (int) mapboxMap.pixelForCoordinate(point).getY();
         Log.d("MapLayout", point.toString());
+
+        guessModel.setGuessPoint(point);
+
         mapLayout.removeView(dropPin);
         RelativeLayout.LayoutParams layout = new RelativeLayout.LayoutParams((int) (PIN_SIZE * factor), (int) (PIN_SIZE * factor));
         layout.setMargins(x - (int) (0.5 * PIN_SIZE), y - (int) (PIN_SIZE), -1, -1);
