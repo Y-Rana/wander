@@ -1,5 +1,7 @@
 package com.example.wander.ui.guess;
 
+import static android.view.View.VISIBLE;
+
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -30,12 +32,14 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import com.mapbox.android.gestures.MoveGestureDetector;
 import com.mapbox.geojson.Point;
 import com.mapbox.maps.MapView;
 import com.mapbox.maps.MapboxMap;
 import com.mapbox.maps.plugin.gestures.GesturesPlugin;
 import com.mapbox.maps.plugin.gestures.GesturesUtils;
 import com.mapbox.maps.plugin.gestures.OnMapClickListener;
+import com.mapbox.maps.plugin.gestures.OnMoveListener;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -116,6 +120,23 @@ public class GuessFragment extends Fragment {
 
         gesturesPlugin.addOnMapClickListener(new MapClickListener(mapLayout, dropPin, mapboxMap, factor, mGuessModel));
 
+        gesturesPlugin.addOnMoveListener(new OnMoveListener() {
+            @Override
+            public void onMoveBegin(@NonNull MoveGestureDetector moveGestureDetector) {
+                dropPin.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public boolean onMove(@NonNull MoveGestureDetector moveGestureDetector) {
+                return false;
+            }
+
+            @Override
+            public void onMoveEnd(@NonNull MoveGestureDetector moveGestureDetector) {
+
+            }
+        });
+
         mViewModel.getGuessPost().observe(getViewLifecycleOwner(), gpost -> {
             Log.d("GuessFragment", "change");
             if (gpost != null) {
@@ -138,7 +159,7 @@ class MapClickListener implements OnMapClickListener {
 
     private final MapboxMap mapboxMap;
 
-    private final int PIN_SIZE = 20;
+    private final int PIN_SIZE = 30;
     private final float factor;
 
     private final GuessFragmentViewModel guessModel;
@@ -166,6 +187,7 @@ class MapClickListener implements OnMapClickListener {
 
         dropPin.setLayoutParams(layout);
         mapLayout.addView(dropPin);
+        dropPin.setVisibility(VISIBLE);
         return true;
     }
 }

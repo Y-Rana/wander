@@ -35,9 +35,10 @@
 
             <ImageView
                 android:id="@+id/drop_pin"
-                android:layout_height="20dp"
-                android:layout_width="20dp"
-                android:src="@drawable/drop_pin"/>
+                android:layout_height="30dp"
+                android:layout_width="30dp"
+                android:visibility="invisible"
+                android:src="@drawable/ic_action_name"/>
 
         </RelativeLayout>
 

@@ -119,7 +119,7 @@ public class Post {
                 String posterName = (String) result.get("posterName");
 
                 Post temp = new Post();
-                temp.setLocation(Point.fromLngLat(location.getLatitude(), location.getLongitude()));
+                temp.setLocation(Point.fromLngLat(location.getLongitude(), location.getLatitude()));
                 temp.setGroupName(groupName);
                 temp.setPosterName(posterName);
                 temp.setImageURL(ref);
