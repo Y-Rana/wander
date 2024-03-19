@@ -38,7 +38,7 @@
                 android:layout_height="30dp"
                 android:layout_width="30dp"
                 android:visibility="invisible"
-                android:src="@drawable/ic_action_name"/>
+                android:src="@drawable/location_pin"/>
 
         </RelativeLayout>
 
