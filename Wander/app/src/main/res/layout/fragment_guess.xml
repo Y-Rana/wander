@@ -46,8 +46,13 @@
             android:id="@+id/guess_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:text="Pick location"
+            android:layout_marginStart="144dp"
+            android:layout_marginTop="120dp"
+            android:backgroundTint="@color/wander_red"
+            android:text="Pick Location"
+            android:textSize="18sp"
+            app:cornerRadius="20dp"
+            android:layout_marginBottom="10dp"
             android:layout_centerHorizontal="true"
             android:layout_alignParentBottom="true"/>
 
