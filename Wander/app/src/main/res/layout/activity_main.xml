@@ -32,13 +32,15 @@
     <fragment
         android:id="@+id/nav_host_fragment_activity_main"
         android:name="androidx.navigation.fragment.NavHostFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="408dp"
+        android:layout_height="649dp"
 
-        android:layout_marginTop="68dp"
+        android:layout_marginTop="80dp"
+
         app:defaultNavHost="true"
-
         app:layout_constraintEnd_toEndOf="parent"
+
+        app:layout_constraintHorizontal_bias="0.333"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 <!--        app:navGraph="@navigation/mobile_navigation" />-->
