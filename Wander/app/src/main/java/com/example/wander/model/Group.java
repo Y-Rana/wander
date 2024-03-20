@@ -10,7 +10,6 @@ public class Group {
     private float[] scores;
     private String postRef;
     private boolean requestToJoin;
-    private int refreshTime;
 
     public Group(String groupName, String groupLocation, List<String> groupAdmins, List<String> members, boolean requestToJoin) {
         this.groupName = groupName;
@@ -18,7 +17,6 @@ public class Group {
         this.members = members;
         this.groupLocation = groupLocation;
         this.requestToJoin = requestToJoin;
-        this.refreshTime = 1;
     }
 
     // Getters

@@ -19,7 +19,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.Manifest;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,8 +49,6 @@ public class CameraActivity extends AppCompatActivity {
 
     private FirebaseStorage storage;
     private StorageReference storageReference;
-
-    GPSTracker gps;
 
 
     @Override
@@ -131,20 +128,10 @@ public class CameraActivity extends AppCompatActivity {
                 new ActivityResultCallback<Boolean>() {
                     @Override
                     public void onActivityResult(Boolean result) {
-                        gps = new GPSTracker(CameraActivity.this);
                         try {
                             if (result) {
                                 cameraBinding.CameraUser.setImageURI(null);
                                 cameraBinding.CameraUser.setImageURI(imageUri);
-                                if (gps.canGetLocation) {
-                                    double latitude = gps.getLatitude();
-                                    double longitude = gps.getLongitude();
-
-                                    // \n is for new line
-                                    Log.d("Latitude", "my Latitude" + latitude);
-                                    Log.d("Longitude", "my Longitude" + longitude);
-                                    Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
-                                }
                             }
                         } catch (Exception exception) {
                             exception.getStackTrace();
@@ -172,7 +159,6 @@ public class CameraActivity extends AppCompatActivity {
                 Toast.makeText(CameraActivity.this, "There was an error when uploading", Toast.LENGTH_SHORT).show();
             }
         });
-
 
     }
 
