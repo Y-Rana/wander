@@ -47,18 +47,25 @@ public class GuessFragmentViewModel extends ViewModel {
 
     private void calculateScore() {
         //formula for calculation of score, set mGuessScore
-        calculateDistance(mGuessPoint, accLocation);
+        // 100/(x + 1)^2
+        float distance = calculateDistance(mGuessPoint, accLocation) / 1000.0f;
+        double score = 100.0 / ((0.3 * distance + 1) * (0.3 * distance + 1));
+
+        mGuessScore = Math.round(score);
+
+        Log.d("CalculateScore", "Score is: " + mGuessScore);
     }
 
     private float calculateDistance(Point one, Point two) {
-        double startLat = mGuessPoint.latitude();
-        double startLong = mGuessPoint.longitude();
-        double endLat = accLocation.latitude();
-        double endLong = accLocation.longitude();
+        double startLat = one.latitude();
+        double startLong = one.longitude();
+        double endLat = two.latitude();
+        double endLong = two.longitude();
         float[] result = new float[1];
 
         Location.distanceBetween(startLat, startLong, endLat, endLong, result);
         Log.d("CalculateDistance", "Distance (km)" + result[0] / 1000.0);
+
         return result[0];
     }
 }

@@ -100,7 +100,7 @@
         android:backgroundTint="@color/wander_red"
         android:text="Create"
         android:textSize="18sp"
-        app:cornerRadius="20dp"
+        app:cornerRadius="32dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/editLocation" />
 
