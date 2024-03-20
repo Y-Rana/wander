@@ -52,6 +52,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Groups extends AppCompatActivity {
@@ -97,7 +98,7 @@ public class Groups extends AppCompatActivity {
                                 String members = group.get("members").toString();
                                 String userName = user.getDisplayName();
                                 if (members.contains(userName)) {
-                                    addGroup(new Group(group.get("name").toString(), "eindhoven", Arrays.asList(group.get("admins").toString()), Arrays.asList(group.get("members").toString()), true));
+                                    addGroup(new Group(group.get("name").toString(), "eindhoven", (List<String>) group.get("admins"), (List<String>) group.get("members"), true));
                                 }
                             }
                         } else {
@@ -170,7 +171,7 @@ public class Groups extends AppCompatActivity {
         }
 
         // Determine if user is an admin of group
-        for (int i = 0; i < group.getMembers().size(); i++) {
+        for (int i = 0; i < group.getGroupAdmins().size(); i++) {
             String formattedString = group.getGroupAdmins().get(i).toString()
                     .replace("[", "")
                     .replace("]", "");
