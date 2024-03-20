@@ -93,17 +93,7 @@ public class Groups extends AppCompatActivity {
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot group : task.getResult()) {
-                                String members = group.get("members").toString();
-                                String userName = user.getDisplayName();
-                                if (members.contains(userName)) {
-                                    addGroup(new Group(group.get("name").toString(), "eindhoven", (List<String>) group.get("admins"), (List<String>) group.get("members"), true));
-                                }
-                            }
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
+                        loadGroupCards();
                     }
                 });
 
@@ -121,6 +111,30 @@ public class Groups extends AppCompatActivity {
                 showCreatePopUp();
             }
         });
+    }
+
+    private void loadGroupCards() {
+        groupsContainer.removeAllViews();
+        // Load groups that user is a member of
+        db.collection("groupData")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot group : task.getResult()) {
+                                String members = group.get("members").toString();
+                                String userName = user.getDisplayName();
+                                if (members.contains(userName)) {
+                                    addGroup(new Group(group.get("name").toString(), "eindhoven", (List<String>) group.get("admins"), (List<String>) group.get("members"), true));
+                                }
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+
     }
 
     private void showCreatePopUp() {
@@ -193,6 +207,7 @@ public class Groups extends AppCompatActivity {
             groupSettings.setVisibility(GONE);
         }
 
+        // Expandable view (info) for group cards
         dropdown.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -208,6 +223,7 @@ public class Groups extends AppCompatActivity {
             }
         });
 
+        // Join button on-click
         join.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -215,10 +231,11 @@ public class Groups extends AppCompatActivity {
             }
         });
 
+        // Settings button on-click
         groupSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showSettingsPopUp();
+                showSettingsPopUp(group);
             }
         });
 
@@ -241,7 +258,7 @@ public class Groups extends AppCompatActivity {
         });
     }
 
-    private void showSettingsPopUp() {
+    private void showSettingsPopUp(Group group) {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.group_settings);
 
@@ -251,6 +268,44 @@ public class Groups extends AppCompatActivity {
         dialog.findViewById(R.id.settings_apply).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                db.collection("groupData")
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    int groupNum = 0;
+                                    for (QueryDocumentSnapshot groupDB : task.getResult()) {
+                                        groupNum++;
+                                        Log.d(TAG, "groupdb: " + groupDB.get("name").toString());
+                                        Log.d(TAG, "group: " + group.getGroupName());
+                                        if (groupDB.get("name").toString().equals(group.getGroupName())) {
+
+                                            // Update name in database
+                                            db.collection("groupData").document("group " + groupNum)
+                                                    .update("name", editName.getText().toString())
+                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                            loadGroupCards();
+                                                        }
+                                                    });
+
+                                            // Check if new name is empty
+                                            if (!editName.getText().toString().isEmpty()) {
+                                                // Update local group object name
+                                                group.setGroupName(editName.getText().toString());
+                                            }
+                                            break;
+                                        }
+                                    }
+                                } else {
+                                    Log.d(TAG, "Error getting documents: ", task.getException());
+                                }
+                            }
+                        });
+
                 dialog.cancel();
             }
         });
