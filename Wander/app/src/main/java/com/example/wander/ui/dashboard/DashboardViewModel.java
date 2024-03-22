@@ -93,11 +93,11 @@ public class DashboardViewModel extends ViewModel {
         //Access document in GroupMembership
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser user = auth.getCurrentUser();
-        //Log.d("GetUserGroups", user.getDisplayName());
-        if (user == null) {
+
+        if (user == null || "".equals(user.getDisplayName())) {
             return groups;
         }
-
+        Log.d("GetUserGroups", user.getDisplayName());
         DocumentReference userGroups = db.collection("groupMembership").document(user.getDisplayName());
 
         userGroups.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
