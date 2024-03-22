@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -27,13 +28,13 @@ public class DashboardFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         DashboardViewModel dashboardViewModel =
-                new ViewModelProvider(requireActivity()).get(DashboardViewModel.class);
+                new ViewModelProvider(getActivity()).get(DashboardViewModel.class);
 
         binding = FragmentDashboardBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
         final TextView textView = binding.textDashboard;
-        final RelativeLayout feed = binding.scrollLayout;
+        final LinearLayout feed = binding.scrollLayout;
 
         dashboardViewModel.getPosts().observe(getViewLifecycleOwner(), posts -> {
                 Log.d("Dashboard", "Change in posts, " + posts.size());
