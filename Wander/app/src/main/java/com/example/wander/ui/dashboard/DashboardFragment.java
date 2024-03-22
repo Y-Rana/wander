@@ -38,6 +38,7 @@ public class DashboardFragment extends Fragment {
 
         dashboardViewModel.getPosts().observe(getViewLifecycleOwner(), posts -> {
                 Log.d("Dashboard", "Change in posts, " + posts.size());
+                feed.removeAllViews();
                 for (Post post : posts) {
                     Log.d("Dashboard", "Post from " + post.getGroupName());
                     if (post.getImageURL() != null) {

@@ -28,7 +28,7 @@ public class PostLayout extends RelativeLayout {
         postPic = new ImageView(context);
 
         ViewGroup.LayoutParams picLayout = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 700);
-        postPic.layout(0, 40,  0, 0);
+        postPic.layout(0, 20,  0, 0);
         postPic.setLayoutParams(picLayout);
         header = new TextView(context);
         this.post = post;
