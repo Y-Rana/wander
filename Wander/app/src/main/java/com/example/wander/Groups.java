@@ -6,14 +6,19 @@ import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.animation.LayoutTransition;
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.transition.AutoTransition;
 import android.transition.TransitionManager;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -21,18 +26,26 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
-import android.widget.TextView;
 import android.widget.SearchView;
+import android.widget.Switch;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.wander.model.Group;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.AggregateQuery;
 import com.google.firebase.firestore.AggregateQuerySnapshot;
 import com.google.firebase.firestore.AggregateSource;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -41,6 +54,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -53,7 +67,6 @@ public class Groups extends AppCompatActivity {
     private LinearLayout groupsContainer;
     private ScrollView groupsScrollView;
     private SearchView searchView;
-    ArrayAdapter<String> arrayAdapter;
 
     private int groupCount;
 
@@ -84,6 +97,16 @@ public class Groups extends AppCompatActivity {
                 return false;
             }
         });
+
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                groupsContainer.removeAllViews();
+                loadGroupCards();
+                return false;
+            }
+        });
+
         Button createButton = findViewById(R.id.create_group);
 
         groupsContainer = findViewById(R.id.groups_container);
@@ -98,21 +121,9 @@ public class Groups extends AppCompatActivity {
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot group : task.getResult()) {
-                                String members = group.get("members").toString();
-                                String userName = user.getDisplayName();
-                                if (members.contains(userName)) {
-                                    addGroup(new Group(Objects.requireNonNull(group.get("name")).toString(), "eindhoven", Arrays.asList(Objects.requireNonNull(group.get("admins")).toString()), Arrays.asList(Objects.requireNonNull(group.get("members")).toString()), true));
-                                }
-                            }
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
+                        loadGroupCards();
                     }
                 });
-
-
 
         dashboardRedirectButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -128,7 +139,34 @@ public class Groups extends AppCompatActivity {
                 showCreatePopUp();
             }
         });
+    }
 
+    private void loadGroupCards() {
+        groupsContainer.removeAllViews();
+        // Load groups that user is a member of
+        db.collection("groupData")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot group : task.getResult()) {
+                                List<String> members = (List<String>) group.get("members");
+                                for (int i = 0; i < members.size(); i++) {
+                                    System.out.println("member: " + members.get(i));
+                                    String formattedString = members.get(i).toString()
+                                            .replace("[", "")
+                                            .replace("]", "");
+                                    if (formattedString.equals(user.getDisplayName())) {
+                                        addGroup(new Group(group.get("name").toString(), group.get("location").toString(), (List<String>) group.get("admins"), (List<String>) group.get("members"), (boolean) group.get("requestToJoin")));
+                                    }
+                                }
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
 
     }
 
@@ -172,15 +210,15 @@ public class Groups extends AppCompatActivity {
         // Determine if user is a member of group
         for (int i = 0; i < group.getMembers().size(); i++) {
             String formattedString = group.getMembers().get(i).toString()
-                .replace("[", "")
-                .replace("]", "");
+                    .replace("[", "")
+                    .replace("]", "");
             if (formattedString.equals(user.getDisplayName())) {
                 member = true;
             }
         }
 
         // Determine if user is an admin of group
-        for (int i = 0; i < group.getMembers().size(); i++) {
+        for (int i = 0; i < group.getGroupAdmins().size(); i++) {
             String formattedString = group.getGroupAdmins().get(i).toString()
                     .replace("[", "")
                     .replace("]", "");
@@ -202,6 +240,7 @@ public class Groups extends AppCompatActivity {
             groupSettings.setVisibility(GONE);
         }
 
+        // Expandable view (info) for group cards
         dropdown.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -217,6 +256,7 @@ public class Groups extends AppCompatActivity {
             }
         });
 
+        // Join button on-click
         join.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -224,10 +264,11 @@ public class Groups extends AppCompatActivity {
             }
         });
 
+        // Settings button on-click
         groupSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showSettingsPopUp();
+                showSettingsPopUp(group);
             }
         });
 
@@ -250,19 +291,66 @@ public class Groups extends AppCompatActivity {
         });
     }
 
-    private void showSettingsPopUp() {
+    private void showSettingsPopUp(Group group) {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.group_settings);
 
         EditText editName = dialog.findViewById(R.id.editNewName);
         EditText editRefresh = dialog.findViewById(R.id.editRefreshTime);
         EditText editPosters = dialog.findViewById(R.id.editPosters);
+        Button deleteGroup = dialog.findViewById(R.id.deleteGroup);
         dialog.findViewById(R.id.settings_apply).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                db.collection("groupData")
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    int groupNum = 0;
+                                    for (QueryDocumentSnapshot groupDB : task.getResult()) {
+                                        groupNum++;
+                                        Log.d(TAG, "groupdb: " + groupDB.get("name").toString());
+                                        Log.d(TAG, "group: " + group.getGroupName());
+                                        if (groupDB.get("name").toString().equals(group.getGroupName())) {
+
+                                            // Update name in database
+                                            db.collection("groupData").document("group " + groupNum)
+                                                    .update("name", editName.getText().toString())
+                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                            loadGroupCards();
+                                                        }
+                                                    });
+
+                                            // Check if new name is empty
+                                            if (!editName.getText().toString().isEmpty()) {
+                                                // Update local group object name
+                                                group.setGroupName(editName.getText().toString());
+                                            }
+                                            break;
+                                        }
+                                    }
+                                } else {
+                                    Log.d(TAG, "Error getting documents: ", task.getException());
+                                }
+                            }
+                        });
+
                 dialog.cancel();
             }
         });
+
+        dialog.findViewById(R.id.deleteGroup).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
         dialog.findViewById(R.id.closeSettings).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -316,7 +404,6 @@ public class Groups extends AppCompatActivity {
     private void loadMatchingGroups(String newText) {
 
         groupsContainer.removeAllViews();
-        groupsContainer.addView(searchView);
 
         db.collection("groupData")
                 .get()
@@ -339,5 +426,6 @@ public class Groups extends AppCompatActivity {
     private boolean matchesSearch(String groupName, String s) {
         return groupName.toLowerCase().contains(s.toLowerCase());
     }
+
 
 }
