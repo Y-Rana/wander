@@ -356,7 +356,43 @@ public class Groups extends AppCompatActivity {
         dialog.findViewById(R.id.deleteGroup).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                db.collection("groupData")
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    for (QueryDocumentSnapshot groupDB : task.getResult()) {
+                                        if (groupDB.get("name").toString().equals(group.getGroupName())) {
 
+                                            String id = groupDB.getId().replace("group ", "");
+
+                                            // Delete group in database
+                                            db.collection("groupData").document(groupDB.getId()).delete()
+                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                            // Delete associated post to the group in database
+                                                            db.collection("posts").document("post " + id).delete()
+                                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                        @Override
+                                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                                            // Load groups again
+                                                                            loadGroupCards();
+                                                                        }
+                                                                    });
+                                                        }
+                                                    });
+                                            break;
+                                        }
+                                    }
+                                } else {
+                                    Log.d(TAG, "Error deleting documents: ", task.getException());
+                                }
+                            }
+                        });
+
+                dialog.cancel();
             }
         });
 
