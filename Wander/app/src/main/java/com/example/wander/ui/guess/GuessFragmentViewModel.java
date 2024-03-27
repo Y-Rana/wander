@@ -56,9 +56,6 @@ public class GuessFragmentViewModel extends ViewModel {
         guessHash.put("location", new GeoPoint(mGuessPoint.latitude(), mGuessPoint.longitude()));
         //guessHash.put("");
 
-
-
-
         guess.set(guessHash);
 
     }

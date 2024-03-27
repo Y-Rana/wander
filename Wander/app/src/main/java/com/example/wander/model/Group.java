@@ -4,6 +4,8 @@ import java.util.List;
 
 public class Group {
     private String groupName;
+
+    private String id;
     private String groupLocation;
     private List<String> groupAdmins;
     private List<String> members;
@@ -12,7 +14,8 @@ public class Group {
     private boolean requestToJoin;
     private int refreshTime;
 
-    public Group(String groupName, String groupLocation, List<String> groupAdmins, List<String> members, boolean requestToJoin) {
+    public Group(String id, String groupName, String groupLocation, List<String> groupAdmins, List<String> members, boolean requestToJoin) {
+        this.id = id;
         this.groupName = groupName;
         this.groupAdmins = groupAdmins;
         this.members = members;
@@ -56,5 +59,9 @@ public class Group {
     }
     public void setRequestToJoin(boolean value) {
         requestToJoin = value;
+    }
+
+    public String getId() {
+        return id;
     }
 }

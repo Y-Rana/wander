@@ -158,7 +158,7 @@ public class Groups extends AppCompatActivity {
                                             .replace("[", "")
                                             .replace("]", "");
                                     if (formattedString.equals(user.getDisplayName())) {
-                                        addGroup(new Group(group.get("name").toString(), group.get("location").toString(), (List<String>) group.get("admins"), (List<String>) group.get("members"), (boolean) group.get("requestToJoin")));
+                                        addGroup(new Group(group.getId(), group.get("name").toString(), group.get("location").toString(), (List<String>) group.get("admins"), (List<String>) group.get("members"), (boolean) group.get("requestToJoin")));
                                     }
                                 }
                             }
@@ -180,8 +180,9 @@ public class Groups extends AppCompatActivity {
         dialog.findViewById(R.id.create_save).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addGroup(new Group(editName.getText().toString(), editLocation.getText().toString(), Collections.singletonList(user.getDisplayName()), Collections.singletonList(user.getDisplayName()), requestToJoin.isChecked()));
-                addGroupToFirestore(new Group(editName.getText().toString(), editLocation.getText().toString(), Collections.singletonList(user.getDisplayName()), Collections.singletonList(user.getDisplayName()), requestToJoin.isChecked()));
+                String id = createID();
+                addGroup(new Group(id, editName.getText().toString(), editLocation.getText().toString(), Collections.singletonList(user.getDisplayName()), Collections.singletonList(user.getDisplayName()), requestToJoin.isChecked()));
+                addGroupToFirestore(new Group(id, editName.getText().toString(), editLocation.getText().toString(), Collections.singletonList(user.getDisplayName()), Collections.singletonList(user.getDisplayName()), requestToJoin.isChecked()));
                 dialog.cancel();
             }
         });
@@ -416,7 +417,6 @@ public class Groups extends AppCompatActivity {
                 if (task.isSuccessful()) {
 
                     // Generate matching ID for post and group
-                    String id = createID();
 
                     Map<String, Object> postHash = new HashMap<>();
                     postHash.put("groupName", group.getGroupName());
@@ -425,7 +425,7 @@ public class Groups extends AppCompatActivity {
                     postHash.put("posterName", "postergoeshere");
 
                     // Add the post to Firestore
-                    db.collection("posts").document("post " + id).set(postHash);
+                    db.collection("posts").document(group.getId()).set(postHash);
 
                     Map<String, Object> groupHash = new HashMap<>();
                     groupHash.put("name", group.getGroupName());
@@ -433,10 +433,10 @@ public class Groups extends AppCompatActivity {
                     groupHash.put("admins", group.getGroupAdmins());
                     groupHash.put("location", group.getGroupLocation());
                     groupHash.put("requestToJoin", group.getRequestToJoin());
-                    groupHash.put("postRef", db.collection("posts").document("post " + id));
+                    groupHash.put("postRef", db.collection("posts").document(group.getId()));
 
                     // Add the group to Firestore
-                    db.collection("groupData").document("group " + id).set(groupHash);
+                    db.collection("groupData").document(group.getId()).set(groupHash);
                 } else {
                     Log.d(TAG, "Count failed: ", task.getException());
                 }
@@ -458,7 +458,7 @@ public class Groups extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot group : task.getResult()) {
                                 if (matchesSearch(group.get("name").toString(), newText)) {
-                                    addGroup(new Group(group.get("name").toString(), "eindhoven", Arrays.asList(group.get("admins").toString()), Arrays.asList(group.get("members").toString()), true));
+                                    addGroup(new Group(group.getId(), group.get("name").toString(), "eindhoven", Arrays.asList(group.get("admins").toString()), Arrays.asList(group.get("members").toString()), true));
                                 }
                             }
                         } else {
