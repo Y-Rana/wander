@@ -111,7 +111,7 @@ public class GuessFragment extends Fragment {
             }
         });
 
-        guessButton.setOnClickListener(click -> mGuessModel.handleSubmit(mViewModel.getGuessPost().getValue().getGroupName()));
+        guessButton.setOnClickListener(click -> mGuessModel.handleSubmit());
 
         GesturesPlugin gesturesPlugin = GesturesUtils.getGestures(mapView);
         MapboxMap mapboxMap = mapView.getMapboxMap();
@@ -142,6 +142,7 @@ public class GuessFragment extends Fragment {
             if (gpost != null) {
                 Log.d("GuessFragment", gpost.getImageURL().getPath());
                 mGuessModel.setAccLocation(gpost.getLocation());
+                mGuessModel.setId(gpost.getId());
                 Glide.with(imageView).load(gpost.getImageURL()).into(imageView);
             }
         });

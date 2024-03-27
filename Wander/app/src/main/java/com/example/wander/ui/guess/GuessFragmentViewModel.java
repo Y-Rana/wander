@@ -22,6 +22,7 @@ import java.util.Map;
 public class GuessFragmentViewModel extends ViewModel {
     private Point accLocation;
     private Point mGuessPoint;
+    private String id;
     private Long mGuessScore;
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -42,12 +43,12 @@ public class GuessFragmentViewModel extends ViewModel {
         return mGuessScore;
     }
 
-    public void handleSubmit(String groupName) {
+    public void handleSubmit() {
         //code to create and upload a guess to firebase
         long score = calculateScore();
         String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         //using email, as changing username would break the database model
-        DocumentReference guess = db.collection("guesses").document(email + " " + groupName);
+        DocumentReference guess = db.collection("guesses").document(email + " " + id);
 
         Map<String, Object> guessHash = new HashMap<>();
 
@@ -86,6 +87,10 @@ public class GuessFragmentViewModel extends ViewModel {
         Log.d("CalculateDistance", "Distance (km)" + result[0] / 1000.0);
 
         return result[0];
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }
 
