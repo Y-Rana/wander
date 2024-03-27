@@ -47,6 +47,8 @@ public class DashboardViewModel extends ViewModel {
         guessPost = new MutableLiveData<>();
         mPosts.setValue(new ArrayList<>());
         mUserGroups = new MutableLiveData<>();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
         mUserGroups.setValue(getUserGroups());
     }
 
@@ -63,7 +65,7 @@ public class DashboardViewModel extends ViewModel {
     }
 
     private void fetchPosts() {
-        Log.d("FetchPosts", "groupNames " + mUserGroups.getValue().size());
+        Log.d("FetchPosts", "groupNames " + mUserGroups.getValue().toString());
 
         List<Post> posts = mPosts.getValue();
 
@@ -94,20 +96,22 @@ public class DashboardViewModel extends ViewModel {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser user = auth.getCurrentUser();
 
-        if (user == null || "".equals(user.getDisplayName())) {
+        if (user == null || "".equals(user.getEmail())) {
             return groups;
         }
-        Log.d("GetUserGroups", user.getDisplayName());
-        DocumentReference userGroups = db.collection("groupMembership").document(user.getDisplayName());
+        Log.d("GetUserGroups", user.getEmail());
+        DocumentReference userGroups = db.collection("groupMembership").document(user.getEmail());
 
         userGroups.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot groupInfo = task.getResult();
+
                     for (int i = 1; i <= groupInfo.getLong("groupNum"); i++) {
-                        groups.add(groupInfo.getString("group" + i));
+                        groups.add(groupInfo.getString("group " + i));
                     }
+
                 }
                 mUserGroups.setValue(groups);
                 Log.d("GetUserGroups", "groups " + groups.size());

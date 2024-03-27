@@ -111,7 +111,7 @@ public class GuessFragment extends Fragment {
             }
         });
 
-        guessButton.setOnClickListener(click -> mGuessModel.handleSubmit());
+        guessButton.setOnClickListener(click -> mGuessModel.handleSubmit(mViewModel.getGuessPost().getValue().getGroupName()));
 
         GesturesPlugin gesturesPlugin = GesturesUtils.getGestures(mapView);
         MapboxMap mapboxMap = mapView.getMapboxMap();
