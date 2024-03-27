@@ -49,6 +49,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -443,7 +444,8 @@ public class Groups extends AppCompatActivity {
                     Map<String, Object> postHash = new HashMap<>();
                     postHash.put("groupName", group.getGroupName());
                     postHash.put("imagePath", "");
-                    postHash.put("location", group.getGroupLocation());
+                    //TODO:change location to actual location
+                    postHash.put("location", new GeoPoint(0.0, 0.0));
                     postHash.put("posterName", "postergoeshere");
 
                     // Add the post to Firestore
