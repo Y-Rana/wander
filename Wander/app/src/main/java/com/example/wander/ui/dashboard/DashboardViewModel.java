@@ -47,7 +47,10 @@ public class DashboardViewModel extends ViewModel {
         guessPost = new MutableLiveData<>();
         mPosts.setValue(new ArrayList<>());
         mUserGroups = new MutableLiveData<>();
-        mUserGroups.setValue(getUserGroups());
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            mUserGroups.setValue(getUserGroups());
+        }
     }
 
     public LiveData<String> getText() {
@@ -105,8 +108,10 @@ public class DashboardViewModel extends ViewModel {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot groupInfo = task.getResult();
-                    for (int i = 1; i <= groupInfo.getLong("groupNum"); i++) {
-                        groups.add(groupInfo.getString("group" + i));
+                    if (groupInfo.exists()) {
+                        for (int i = 1; i <= groupInfo.getLong("groupNum"); i++) {
+                            groups.add(groupInfo.getString("group" + i));
+                        }
                     }
                 }
                 mUserGroups.setValue(groups);

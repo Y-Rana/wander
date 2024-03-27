@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,10 +19,17 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class SignUp extends AppCompatActivity {
     private FirebaseAuth auth;
-    private EditText signupEmail, signupPassword;
+    private EditText signupEmail, signupPassword, signupUsername;
     private Button signupButton;
     private TextView loginRedirectText;
     @Override
@@ -30,6 +38,7 @@ public class SignUp extends AppCompatActivity {
         setContentView(R.layout.activity_sign_up);
         auth = FirebaseAuth.getInstance();
         signupEmail = findViewById(R.id.signup_email);
+        signupUsername = findViewById(R.id.signup_username);
         signupPassword = findViewById(R.id.signup_password);
         signupPassword.setTransformationMethod(new PasswordTransformationMethod());
         signupButton = findViewById(R.id.signup_button);
@@ -37,25 +46,20 @@ public class SignUp extends AppCompatActivity {
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String user = signupEmail.getText().toString().trim();
+                Log.d("CreateUser", "Creating user");
+                String email = signupEmail.getText().toString().trim();
                 String pass = signupPassword.getText().toString().trim();
-                if (user.isEmpty()){
+                String username = signupUsername.getText().toString().trim();
+                if (email.isEmpty()){
                     signupEmail.setError("Email cannot be empty");
+                }
+                if (username.isEmpty() || username.length() < 3 || username.length() > 15) {
+                    signupUsername.setError("Username must be between 3 and 15 characters");
                 }
                 if (pass.isEmpty()){
                     signupPassword.setError("Password cannot be empty");
-                } else{
-                    auth.createUserWithEmailAndPassword(user, pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()) {
-                                Toast.makeText(SignUp.this, "Signup Successful", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(SignUp.this, LogIn.class));
-                            } else {
-                                Toast.makeText(SignUp.this, "Signup Failed" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
+                } else {
+                    checkUsernameUniqueAndCreateAccount(email, username, pass);
                 }
             }
         });
@@ -65,5 +69,72 @@ public class SignUp extends AppCompatActivity {
                 startActivity(new Intent(SignUp.this, LogIn.class));
             }
         });
+    }
+
+    private void checkUsernameUniqueAndCreateAccount(String email, String username, String pass) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        Log.d("checkUsername", "checking username," + username);
+
+        DocumentReference membershipRef = db.collection("groupMembership").document(username);
+
+        membershipRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot doc = task.getResult();
+                    if (doc.exists()) {
+                        Log.d("checkUsername", "username not unique, " + doc.getData().toString());
+                        signupUsername.setError("Username must be unique.");
+                    } else {
+                        Log.d("checkUsername", "username unique");
+                        CreateAccountAndSetUsername(email, username, pass);
+                    }
+                }
+            }
+        });
+    }
+    private void CreateAccountAndSetUsername(String email, String username, String pass) {
+        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                .setDisplayName(username)
+                .build();
+
+        auth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    FirebaseUser user = auth.getCurrentUser();
+
+                    user.updateProfile(profileUpdates)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        Log.d("setUsername", "Username set");
+                                        createGroupMembership(username);
+                                        Toast.makeText(SignUp.this, "Signup Successful", Toast.LENGTH_SHORT).show();
+                                        startActivity(new Intent(SignUp.this, LogIn.class));
+                                        //redirect out of signup at this point
+                                    }
+                                }
+                            });
+
+                } else {
+                    Toast.makeText(SignUp.this, "Signup Failed" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+
+    }
+
+    private void createGroupMembership(String username) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference doc = db.collection("groupMembership").document(username);
+
+
+        Map<String, Integer> groupHash = new HashMap<>();
+        groupHash.put("groupNum", 0);
+        doc.set(groupHash);
     }
 }

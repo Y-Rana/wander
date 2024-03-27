@@ -13,6 +13,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import android.content.Intent;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -30,6 +31,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        auth = FirebaseAuth.getInstance();
+
+        if (this.auth.getCurrentUser() == null) {
+            Intent login_page = new Intent(this, LogIn.class);
+            startActivity(login_page);
+        } else {
+            Log.d("Main OnCreate", "Current user is: " + auth.getCurrentUser().getDisplayName());
+        }
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -37,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         //connecting to the database
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        auth = FirebaseAuth.getInstance();
+
 
         profileIcon = findViewById(R.id.profile_icon);
         groupsIcon = findViewById(R.id.groups_icon);
@@ -60,11 +69,6 @@ public class MainActivity extends AppCompatActivity {
                 openCameraActivity();
             }
         });
-
-        if (this.auth.getCurrentUser() == null) {
-            Intent login_page = new Intent(this, LogIn.class);
-            startActivity(login_page);
-        }
 
 
         profileIcon.setOnClickListener(new View.OnClickListener() {
