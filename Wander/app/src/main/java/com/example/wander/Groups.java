@@ -431,6 +431,7 @@ public class Groups extends AppCompatActivity {
                     groupHash.put("name", group.getGroupName());
                     groupHash.put("members", group.getMembers());
                     groupHash.put("admins", group.getGroupAdmins());
+                    groupHash.put("posterName", user.getEmail());
                     groupHash.put("location", group.getGroupLocation());
                     groupHash.put("requestToJoin", group.getRequestToJoin());
                     groupHash.put("postRef", db.collection("posts").document(group.getId()));

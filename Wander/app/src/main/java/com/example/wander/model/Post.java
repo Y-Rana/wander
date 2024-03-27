@@ -20,6 +20,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 public class Post {
+    private String id;
     private Point location;
     private String groupName;
     private String posterName;
@@ -34,7 +35,8 @@ public class Post {
         storage = FirebaseStorage.getInstance();
     }
 
-    public Post(Point location, String groupName, StorageReference imageURL) {
+    public Post(String id, Point location, String groupName, StorageReference imageURL) {
+        this.id = id;
         this.location = location;
         this.groupName = groupName;
         this.imageURL = imageURL;
@@ -118,15 +120,16 @@ public class Post {
                 String groupName = (String) result.get("groupName");
                 String posterName = (String) result.get("posterName");
 
-                Post temp = new Post();
-                temp.setLocation(Point.fromLngLat(location.getLongitude(), location.getLatitude()));
-                temp.setGroupName(groupName);
+                Post temp = new Post(result.getId(), Point.fromLngLat(location.getLongitude(), location.getLatitude()), groupName, ref);
                 temp.setPosterName(posterName);
-                temp.setImageURL(ref);
+
                 post.setValue(temp);
             }
         }).addOnFailureListener(e -> Log.d("GetPost", e.getMessage()));
     }
 
+    public String getId() {
+        return id;
+    }
 
 }
