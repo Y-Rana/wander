@@ -15,7 +15,9 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.storage.FirebaseStorage;
 import com.mapbox.geojson.Point;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GuessFragmentViewModel extends ViewModel {
     private Point accLocation;
@@ -45,7 +47,19 @@ public class GuessFragmentViewModel extends ViewModel {
         long score = calculateScore();
         String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         //using email, as changing username would break the database model
-        DocumentReference guess = db.collection("guesses").document(email + groupName);
+        DocumentReference guess = db.collection("guesses").document(email + " " + groupName);
+
+        Map<String, Object> guessHash = new HashMap<>();
+
+        guessHash.put("points", score);
+
+        guessHash.put("location", new GeoPoint(mGuessPoint.latitude(), mGuessPoint.longitude()));
+        //guessHash.put("");
+
+
+
+
+        guess.set(guessHash);
 
     }
 

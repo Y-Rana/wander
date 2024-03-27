@@ -76,7 +76,7 @@ public class SignUp extends AppCompatActivity {
 
         Log.d("checkUsername", "checking username," + username);
 
-        DocumentReference membershipRef = db.collection("groupMembership").document(username);
+        DocumentReference membershipRef = db.collection("usernames").document(username);
 
         membershipRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -111,7 +111,7 @@ public class SignUp extends AppCompatActivity {
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()) {
                                         Log.d("setUsername", "Username set");
-                                        createGroupMembership(email);
+                                        createGroupMembershipAndUsername(username, email);
                                         Toast.makeText(SignUp.this, "Signup Successful", Toast.LENGTH_SHORT).show();
                                         startActivity(new Intent(SignUp.this, LogIn.class));
                                         //redirect out of signup at this point
@@ -128,13 +128,18 @@ public class SignUp extends AppCompatActivity {
 
     }
 
-    private void createGroupMembership(String email) {
+    private void createGroupMembershipAndUsername(String username, String email) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference doc = db.collection("groupMembership").document(email);
+        DocumentReference groupMembershipDoc = db.collection("groupMembership").document(email);
+        DocumentReference usernameDoc = db.collection("usernames").document(username);
 
 
         Map<String, Integer> groupHash = new HashMap<>();
         groupHash.put("groupNum", 0);
-        doc.set(groupHash);
+        groupMembershipDoc.set(groupHash);
+
+        Map<String, String> usernameHash = new HashMap<>();
+        usernameHash.put("email", email);
+
     }
 }

@@ -10,6 +10,8 @@ import org.junit.runner.RunWith;
 
 import static org.junit.Assert.*;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+
 /**
  * Instrumented test, which will execute on an Android device.
  *
@@ -22,5 +24,8 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         assertEquals("com.example.wander", appContext.getPackageName());
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
     }
+
+
 }
