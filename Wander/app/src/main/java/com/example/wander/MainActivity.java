@@ -5,6 +5,7 @@ import static androidx.navigation.fragment.FragmentKt.findNavController;
 import android.os.Bundle;
 
 import com.example.wander.ui.dashboard.DashboardFragment;
+import com.example.wander.ui.guess.PosterActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,9 +26,9 @@ import com.google.firebase.auth.FirebaseAuth;
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
-    private Button pictureButton;
     private FirebaseAuth auth;
     private ImageView profileIcon, groupsIcon;
+    private Boolean DEBUG_POSTER_VIEW = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,7 +47,10 @@ public class MainActivity extends AppCompatActivity {
         //connecting to the database
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-
+        if (DEBUG_POSTER_VIEW || checkIfPoster()){
+            Intent poster_page = new Intent(this, PosterActivity.class);
+            startActivity(poster_page);
+        }
 
         profileIcon = findViewById(R.id.profile_icon);
         groupsIcon = findViewById(R.id.groups_icon);
@@ -61,14 +65,6 @@ public class MainActivity extends AppCompatActivity {
 //        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
 //        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 //        NavigationUI.setupWithNavController(binding.navView, navController);
-
-        pictureButton = (Button) findViewById(R.id.picture_button);
-        pictureButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openCameraActivity();
-            }
-        });
 
 
         profileIcon.setOnClickListener(new View.OnClickListener() {
@@ -88,10 +84,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
-    public void openCameraActivity() {
-        Intent intent = new Intent(this, CameraActivity.class);
-        startActivity(intent);
+    private Boolean checkIfPoster(){
+        return false;
     }
 
 }
