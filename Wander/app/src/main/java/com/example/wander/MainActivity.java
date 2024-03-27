@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
             Intent login_page = new Intent(this, LogIn.class);
             startActivity(login_page);
         } else {
-            Log.d("Main OnCreate", "Current user is: " + auth.getCurrentUser().getDisplayName());
+            Log.d("Main OnCreate", "Current user is: " + auth.getCurrentUser().getEmail());
         }
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());

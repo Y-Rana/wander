@@ -111,7 +111,7 @@ public class SignUp extends AppCompatActivity {
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()) {
                                         Log.d("setUsername", "Username set");
-                                        createGroupMembership(username);
+                                        createGroupMembership(email);
                                         Toast.makeText(SignUp.this, "Signup Successful", Toast.LENGTH_SHORT).show();
                                         startActivity(new Intent(SignUp.this, LogIn.class));
                                         //redirect out of signup at this point
@@ -128,9 +128,9 @@ public class SignUp extends AppCompatActivity {
 
     }
 
-    private void createGroupMembership(String username) {
+    private void createGroupMembership(String email) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference doc = db.collection("groupMembership").document(username);
+        DocumentReference doc = db.collection("groupMembership").document(email);
 
 
         Map<String, Integer> groupHash = new HashMap<>();

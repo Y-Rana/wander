@@ -8,6 +8,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.wander.model.Post;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.storage.FirebaseStorage;
@@ -19,6 +21,8 @@ public class GuessFragmentViewModel extends ViewModel {
     private Point accLocation;
     private Point mGuessPoint;
     private Long mGuessScore;
+
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     public GuessFragmentViewModel() {
         mGuessPoint = Point.fromLngLat(0.0,0.0);
@@ -36,24 +40,28 @@ public class GuessFragmentViewModel extends ViewModel {
         return mGuessScore;
     }
 
-    public void handleSubmit() {
+    public void handleSubmit(String groupName) {
         //code to create and upload a guess to firebase
-        calculateScore();
+        long score = calculateScore();
+        String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        //using email, as changing username would break the database model
+        DocumentReference guess = db.collection("guesses").document(email + groupName);
+
     }
 
     public void setGuessPoint(Point point) {
         mGuessPoint = point;
     }
 
-    private void calculateScore() {
+    private long calculateScore() {
         //formula for calculation of score, set mGuessScore
         // 100/(x + 1)^2
         float distance = calculateDistance(mGuessPoint, accLocation) / 1000.0f;
         double score = 100.0 / ((0.3 * distance + 1) * (0.3 * distance + 1));
 
-        mGuessScore = Math.round(score);
-
+        //include code to display score on screen
         Log.d("CalculateScore", "Score is: " + mGuessScore);
+        return mGuessScore = Math.round(score);
     }
 
     private float calculateDistance(Point one, Point two) {
