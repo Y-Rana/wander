@@ -47,11 +47,13 @@ import com.google.firebase.firestore.AggregateQuerySnapshot;
 import com.google.firebase.firestore.AggregateSource;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -157,7 +159,7 @@ public class Groups extends AppCompatActivity {
                                     String formattedString = members.get(i).toString()
                                             .replace("[", "")
                                             .replace("]", "");
-                                    if (formattedString.equals(user.getDisplayName())) {
+                                    if (formattedString.equals(user.getEmail())) {
                                         addGroup(new Group(group.getId(), group.get("name").toString(), group.get("location").toString(), (List<String>) group.get("admins"), (List<String>) group.get("members"), (boolean) group.get("requestToJoin")));
                                     }
                                 }
@@ -181,8 +183,8 @@ public class Groups extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String id = createID();
-                addGroup(new Group(id, editName.getText().toString(), editLocation.getText().toString(), Collections.singletonList(user.getDisplayName()), Collections.singletonList(user.getDisplayName()), requestToJoin.isChecked()));
-                addGroupToFirestore(new Group(id, editName.getText().toString(), editLocation.getText().toString(), Collections.singletonList(user.getDisplayName()), Collections.singletonList(user.getDisplayName()), requestToJoin.isChecked()));
+                addGroup(new Group(id, editName.getText().toString(), editLocation.getText().toString(), Collections.singletonList(user.getEmail()), Collections.singletonList(user.getEmail()), requestToJoin.isChecked()));
+                addGroupToFirestore(new Group(id, editName.getText().toString(), editLocation.getText().toString(), Collections.singletonList(user.getEmail()), Collections.singletonList(user.getEmail()), requestToJoin.isChecked()));
                 dialog.cancel();
             }
         });
@@ -213,7 +215,7 @@ public class Groups extends AppCompatActivity {
             String formattedString = group.getMembers().get(i).toString()
                     .replace("[", "")
                     .replace("]", "");
-            if (formattedString.equals(user.getDisplayName())) {
+            if (formattedString.equals(user.getEmail())) {
                 member = true;
             }
         }
@@ -223,7 +225,7 @@ public class Groups extends AppCompatActivity {
             String formattedString = group.getGroupAdmins().get(i).toString()
                     .replace("[", "")
                     .replace("]", "");
-            if (formattedString.equals(user.getDisplayName())) {
+            if (formattedString.equals(user.getEmail())) {
                 admin = true;
             }
         }
@@ -274,7 +276,27 @@ public class Groups extends AppCompatActivity {
         join.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                db.collection("groupData").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot groupDB : task.getResult()) {
+                                if(group.getId().equals(groupDB.getId())) {
+                                    db.collection("groupData").document(groupDB.getId())
+                                            .update("members", FieldValue.arrayUnion(user.getEmail().toString())).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    loadGroupCards();
+                                                }
+                                            });
+                                }
 
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
             }
         });
 
