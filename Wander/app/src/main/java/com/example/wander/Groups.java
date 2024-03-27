@@ -3,6 +3,7 @@ package com.example.wander;
 import static android.view.View.GONE;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
@@ -57,6 +58,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 public class Groups extends AppCompatActivity {
 
@@ -67,8 +69,6 @@ public class Groups extends AppCompatActivity {
     private LinearLayout groupsContainer;
     private ScrollView groupsScrollView;
     private SearchView searchView;
-
-    private int groupCount;
 
     private FirebaseFirestore db;
     private FirebaseAuth auth;
@@ -240,7 +240,7 @@ public class Groups extends AppCompatActivity {
             groupSettings.setVisibility(GONE);
         }
 
-        // Expandable view (info) for group cards
+        boolean finalMember = member;
         dropdown.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -249,8 +249,21 @@ public class Groups extends AppCompatActivity {
 
                 if (expand_content.getVisibility() == GONE) {
                     expand_content.setVisibility(View.VISIBLE);
+//                    if (finalMember) {
+//                        join.setText("Leave");
+//                        join.setBackgroundColor(0xFFFF3336);
+//                        join.setEnabled(false);
+//                    } else {
+//                        join.setText("Join");
+//                    }
                 } else {
                     expand_content.setVisibility(GONE);
+//                    if (finalMember) {
+//                        join.setText("Joined");
+//                        join.setEnabled(false);
+//                    } else {
+//                        join.setText("Join");
+//                    }
                 }
 
             }
@@ -309,15 +322,11 @@ public class Groups extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 if (task.isSuccessful()) {
-                                    int groupNum = 0;
                                     for (QueryDocumentSnapshot groupDB : task.getResult()) {
-                                        groupNum++;
-                                        Log.d(TAG, "groupdb: " + groupDB.get("name").toString());
-                                        Log.d(TAG, "group: " + group.getGroupName());
                                         if (groupDB.get("name").toString().equals(group.getGroupName())) {
 
                                             // Update name in database
-                                            db.collection("groupData").document("group " + groupNum)
+                                            db.collection("groupData").document(groupDB.getId())
                                                     .update("name", editName.getText().toString())
                                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                         @Override
@@ -347,7 +356,43 @@ public class Groups extends AppCompatActivity {
         dialog.findViewById(R.id.deleteGroup).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                db.collection("groupData")
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    for (QueryDocumentSnapshot groupDB : task.getResult()) {
+                                        if (groupDB.get("name").toString().equals(group.getGroupName())) {
 
+                                            String id = groupDB.getId().replace("group ", "");
+
+                                            // Delete group in database
+                                            db.collection("groupData").document(groupDB.getId()).delete()
+                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                            // Delete associated post to the group in database
+                                                            db.collection("posts").document("post " + id).delete()
+                                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                        @Override
+                                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                                            // Load groups again
+                                                                            loadGroupCards();
+                                                                        }
+                                                                    });
+                                                        }
+                                                    });
+                                            break;
+                                        }
+                                    }
+                                } else {
+                                    Log.d(TAG, "Error deleting documents: ", task.getException());
+                                }
+                            }
+                        });
+
+                dialog.cancel();
             }
         });
 
@@ -369,10 +414,10 @@ public class Groups extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AggregateQuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    // Count fetched successfully
-                    AggregateQuerySnapshot snapshot = task.getResult();
-                    groupCount = (int) snapshot.getCount();
-                    Log.d(TAG, "Count: " + groupCount);
+
+                    // Generate matching ID for post and group
+                    String id = createID();
+
                     Map<String, Object> postHash = new HashMap<>();
                     postHash.put("groupName", group.getGroupName());
                     postHash.put("imagePath", "");
@@ -380,7 +425,7 @@ public class Groups extends AppCompatActivity {
                     postHash.put("posterName", "postergoeshere");
 
                     // Add the post to Firestore
-                    db.collection("posts").document("post " + (groupCount+1)).set(postHash);
+                    db.collection("posts").document("post " + id).set(postHash);
 
                     Map<String, Object> groupHash = new HashMap<>();
                     groupHash.put("name", group.getGroupName());
@@ -388,10 +433,10 @@ public class Groups extends AppCompatActivity {
                     groupHash.put("admins", group.getGroupAdmins());
                     groupHash.put("location", group.getGroupLocation());
                     groupHash.put("requestToJoin", group.getRequestToJoin());
-                    groupHash.put("postRef", db.collection("posts").document("post " + (groupCount+1)));
+                    groupHash.put("postRef", db.collection("posts").document("post " + id));
 
                     // Add the group to Firestore
-                    db.collection("groupData").document("group " + (groupCount+1)).set(groupHash);
+                    db.collection("groupData").document("group " + id).set(groupHash);
                 } else {
                     Log.d(TAG, "Count failed: ", task.getException());
                 }
@@ -425,6 +470,10 @@ public class Groups extends AppCompatActivity {
 
     private boolean matchesSearch(String groupName, String s) {
         return groupName.toLowerCase().contains(s.toLowerCase());
+    }
+
+    public String createID() {
+        return UUID.randomUUID().toString().replaceAll("-", "").toUpperCase();
     }
 
 
